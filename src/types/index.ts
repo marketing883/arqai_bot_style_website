@@ -168,64 +168,41 @@ export interface ArchitectureDiagramData {
 // Lead Types
 // ============================================
 
-export type ReadinessLevel = 'Hot' | 'Warm' | 'Nurture' | 'Research'
-export type CompanySizeTier = 'Enterprise' | 'Mid-Market' | 'SMB' | 'Startup'
-export type BudgetAuthority = 'C-Suite' | 'VP' | 'Director' | 'Manager' | 'IC'
-export type UrgencyLevel = 'Immediate' | 'Exploring' | 'Learning'
-export type TechnicalLevel = 'High' | 'Medium' | 'Low'
-export type LeadStatus = 'New' | 'Contacted' | 'Qualified' | 'Unqualified'
+export type LeadTier = 'hot' | 'warm' | 'cold'
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
+export type CompanySize = 'enterprise' | 'mid-market' | 'smb' | 'startup'
 
 export interface Lead {
   id: string
   createdAt: Date
+  updatedAt: Date
 
-  // Basic Info
-  name: string
+  // Basic Info (required)
   email: string
-  jobTitle?: string
-  companyName?: string
-  location?: string
 
-  // Qualification
-  leadScore: number
-  segmentLabel?: string
-  readinessLevel?: ReadinessLevel
-  companySizeTier?: CompanySizeTier
-  industryVertical?: string
-  budgetAuthorityLevel?: BudgetAuthority
+  // Basic Info (optional)
+  name?: string
+  title?: string
+  company?: string
+  phone?: string
+  companySize?: CompanySize
 
-  // Company Intelligence
-  employeeCount?: number
-  revenue?: string
-  publicPrivate?: 'Public' | 'Private' | 'Unknown'
-  fundingStage?: string
-  techStackDetected?: string[]
-  recentNews?: string
-  aiInitiativesDetected?: string
-
-  // Person Intelligence
-  linkedinProfileUrl?: string
-  roleTenure?: string
-  previousCompanies?: string[]
-  professionalBackground?: string
-  decisionAuthorityAssessment?: string
-
-  // Conversation Intelligence
-  conversationTranscript?: string
-  primaryPainPoint?: string
-  useCasesDiscussed?: string[]
-  urgencyLevel?: UrgencyLevel
-  objectionsRaised?: string
-  competingToolsMentioned?: string[]
-  technicalSophisticationLevel?: TechnicalLevel
-  artifactsGenerated?: BlockType[]
-  nextActionSuggested?: string
-  functionExplored?: FunctionType
-
-  // Management
+  // Scoring
+  score: number
+  tier: LeadTier
   status: LeadStatus
-  assignedTo?: string
+
+  // Context from conversation
+  functionType: FunctionType
+  blocksViewed?: BlockType[]
+  painPoints?: string[]
+  conversationLength?: number
+
+  // Additional enrichment (future)
+  industry?: string
+  techStack?: string[]
   notes?: string
+  assignedTo?: string
 }
 
 // ============================================
@@ -276,11 +253,9 @@ export interface LeadsResponse {
 
 export interface LeadFilters {
   scoreRange?: [number, number]
-  segments?: string[]
-  dateRange?: [Date, Date]
-  industries?: string[]
-  readinessLevels?: ReadinessLevel[]
-  companySizeTiers?: CompanySizeTier[]
+  tiers?: LeadTier[]
   statuses?: LeadStatus[]
+  functionTypes?: FunctionType[]
+  dateRange?: [Date, Date]
   search?: string
 }
