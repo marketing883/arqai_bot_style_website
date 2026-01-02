@@ -163,16 +163,20 @@ ${ragContext}` : ''
     // Check if API key is configured
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
+      console.log('[Chat] No ANTHROPIC_API_KEY found, using mock responses')
       // Return a mock response for development
       return NextResponse.json({
-        message: getMockResponse(latestMessage.content, functionType, userRole),
+        message: getMockResponse(latestMessage.content, functionType, userRole, messageCount),
         blocks: blocksToShow,
         detectedRole: userRole,
         painPoints,
         shouldCaptureLead: false,
         ragEnabled: false,
+        usingMock: true,
       })
     }
+
+    console.log('[Chat] Using Claude API with key:', apiKey.substring(0, 10) + '...')
 
     // Build final system prompt with RAG context
     const finalSystemPrompt = enhancedSystemPrompt + ragInstructions
@@ -231,13 +235,56 @@ ${ragContext}` : ''
 function getMockResponse(
   userMessage: string,
   functionType: FunctionType,
-  userRole: string | null
+  userRole: string | null,
+  messageCount: number = 1
 ): string {
   const lowerMessage = userMessage.toLowerCase()
+  const functionName = formatFunction(functionType)
+
+  // FIRST MESSAGE - Welcome based on function
+  if (messageCount <= 1) {
+    return getWelcomeResponse(functionType, userRole)
+  }
+
+  // Handle very short or vague responses
+  if (lowerMessage.length < 15 || lowerMessage.includes('tell me') || lowerMessage.includes('go on') || lowerMessage.includes('continue') || lowerMessage.includes('more') || lowerMessage.includes('yes') || lowerMessage.includes('sure')) {
+    return getContinuationResponse(functionType, userRole)
+  }
+
+  // Help / how can you help questions
+  if (lowerMessage.includes('help') || lowerMessage.includes('can you') || lowerMessage.includes('what can')) {
+    return `Absolutely! For **${functionName}**, I can help you understand:
+
+**🎯 Specific Solutions**: How ArqAI automates ${functionName.toLowerCase()} workflows with full governance
+
+**💰 ROI & Value**: Typical results our customers see (30-40% cost reduction, 85% automation rates)
+
+**🔒 Security & Compliance**: Our SOC 2, HIPAA, GDPR capabilities
+
+**🏗️ Architecture**: Our three patented technologies that make this possible
+
+**📅 Implementation**: Our 30-day deployment methodology
+
+What's most important to you right now? I can dive deep into any of these areas.`
+  }
+
+  // Marketing-specific questions (even on wrong page)
+  if (lowerMessage.includes('marketing') || lowerMessage.includes('demand') || lowerMessage.includes('campaign') || lowerMessage.includes('lead gen')) {
+    return `Great question about marketing automation! ArqAI's **Autonomous Demand Generation** solution helps with:
+
+**Campaign Automation**: Multi-channel orchestration with brand guardrails
+**Lead Qualification**: AI-powered scoring that routes to the right rep
+**Content Personalization**: Dynamic content at scale while maintaining brand compliance
+**Attribution**: Full-funnel tracking with explainable AI
+
+Our customers typically see **50% faster campaign launches** and **35% improvement in conversion rates**.
+
+Would you like to explore this vertical specifically? I can show you how it integrates with HubSpot, Marketo, or your existing marketing stack.`
+  }
 
   // Use cases / customers / proof questions
-  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('solved') || lowerMessage.includes('who') || lowerMessage.includes('example') || lowerMessage.includes('case stud')) {
-    return `Great question! ArqAI is currently deployed across **12 enterprise customers** with **$500K ARR** and zero churn. Here are some specific examples for ${formatFunction(functionType)}:
+  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('solved') || lowerMessage.includes('who uses') || lowerMessage.includes('example') || lowerMessage.includes('case stud') || lowerMessage.includes('proof') || lowerMessage.includes('results')) {
+    return `Great question! ArqAI is currently deployed across **12 enterprise customers** with **$500K ARR** and zero churn. Here are some specific examples:
 
 **Finance Sector**: A Fortune 500 bank automated their incident response workflow, reducing MTTR from 4 hours to 18 minutes while maintaining full audit compliance for Fed SR 11-7.
 
@@ -245,9 +292,9 @@ function getMockResponse(
 
 **Telecom**: One of the largest carriers automated their network operations, handling 85% of routine incidents autonomously.
 
-**Industrial/Manufacturing**: A global manufacturer uses ArqAI for supply chain automation with full traceability.
+We've also expanded into **Retail**, **Manufacturing**, and **Real Estate**. Each deployment follows our **30-day production** methodology.
 
-We've expanded into Retail and Real Estate as well. Each deployment follows our **30-day production** methodology. Would you like me to show you a detailed case study for your industry?`
+What industry are you in? I can share more relevant examples.`
   }
 
   // Contact / speak to someone questions
@@ -459,4 +506,96 @@ function getIntegrationList(functionType: FunctionType): string {
 • **LinkedIn** - Ads & targeting`,
   }
   return integrations[functionType]
+}
+
+function getWelcomeResponse(functionType: FunctionType, userRole: string | null): string {
+  const functionName = formatFunction(functionType)
+  const roleGreeting = userRole ? `As a ${userRole}, you'll appreciate that ` : ''
+
+  const welcomes: Record<FunctionType, string> = {
+    'it-infrastructure': `Welcome! I'm here to help you explore **Autonomous IT Infrastructure** solutions.
+
+${roleGreeting}ArqAI can automate incident response, deployment pipelines, and infrastructure management—all with enterprise-grade governance.
+
+**What would you like to know?**
+• How we reduce MTTR by 85%
+• Our integration with ServiceNow, PagerDuty, Jira
+• The 30-day deployment methodology
+• Security and compliance (SOC 2, HIPAA)
+
+Just ask anything—I'm here to help!`,
+
+    'revenue-operations': `Welcome! I'm here to help you explore **Autonomous Revenue Operations**.
+
+${roleGreeting}ArqAI can automate your entire revenue pipeline—from lead scoring to forecasting to CRM hygiene—with full audit trails.
+
+**What would you like to know?**
+• How we improve sales productivity by 30%
+• Integration with Salesforce, HubSpot, Outreach
+• Our AI-powered pipeline management
+• Compliance and data governance
+
+What's on your mind?`,
+
+    'customer-success': `Welcome! I'm here to help you explore **Autonomous Customer Success** solutions.
+
+${roleGreeting}ArqAI can automate ticket resolution, customer health scoring, and proactive engagement—while maintaining service quality.
+
+**What would you like to know?**
+• How we achieve 70% tier-1 auto-resolution
+• Integration with Zendesk, Intercom, Gainsight
+• Our intelligent escalation system
+• Maintaining CSAT while automating
+
+How can I help you today?`,
+
+    'demand-generation': `Welcome! I'm here to help you explore **Autonomous Demand Generation**.
+
+${roleGreeting}ArqAI can automate campaign execution, lead qualification, and content personalization—all within brand and compliance guardrails.
+
+**What would you like to know?**
+• How we achieve 50% faster campaign launches
+• Integration with HubSpot, Marketo, 6sense
+• AI-powered lead scoring
+• Brand safety and compliance controls
+
+What interests you most?`,
+  }
+
+  return welcomes[functionType]
+}
+
+function getContinuationResponse(functionType: FunctionType, userRole: string | null): string {
+  const functionName = formatFunction(functionType)
+
+  const continuations = [
+    `Happy to elaborate! For **${functionName}**, our customers typically see:
+
+• **30-40% cost reduction** within 90 days
+• **85% automation rate** for routine tasks
+• **Zero compliance violations** with built-in governance
+
+The key is our **three patented technologies** that make AI agents production-ready. Would you like me to explain our architecture, share customer examples, or discuss ROI for your specific situation?`,
+
+    `Of course! Let me share what makes ArqAI unique for **${functionName}**:
+
+**Speed**: 30 days to production, not quarters
+**Trust**: Three patents protecting governance, compliance, and observability
+**Results**: 12 customers, $500K ARR, zero churn
+
+What aspect interests you most—the technology, the business outcomes, or how it integrates with your existing stack?`,
+
+    `Absolutely! Here's what I can dive deeper into:
+
+**Technical**: Our Trust-Aware Agent Orchestration™, Compliance-Aware Prompt Compiler™, and Observability-Driven Adaptive RAG™
+
+**Business**: ROI calculations, customer case studies, competitive comparisons
+
+**Practical**: Integration options, deployment timeline, security requirements
+
+Which would be most valuable for you?`,
+  ]
+
+  // Return a random continuation for variety
+  return continuations[Math.floor(Math.random() * continuations.length)]
 }
