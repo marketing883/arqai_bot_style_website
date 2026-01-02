@@ -4,6 +4,15 @@ import { getAnthropicClient, parseAssistantResponse, shouldCaptureLead } from '@
 import { getSystemPrompt, detectUserRole, detectPainPoint } from '@/lib/agent-prompts'
 import { analyzeMessageForBlocks, generateBlockData, shouldShowBlock } from '@/lib/block-triggers'
 import type { FunctionType, Message, BlockType, ContentBlock } from '@/types'
+import type { FunctionContext } from '@/lib/rag'
+
+// Convert FunctionType to FunctionContext for RAG
+const functionTypeToContext: Record<FunctionType, FunctionContext> = {
+  'it-infrastructure': 'it-infrastructure',
+  'revenue-operations': 'revenue-operations',
+  'customer-success': 'customer-success',
+  'demand-generation': 'demand-generation',
+}
 
 // Use Node.js runtime for Anthropic SDK compatibility
 export const runtime = 'nodejs'
@@ -92,6 +101,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Try to retrieve RAG context if configured
+    let ragContext = ''
+    let ragConfidence = 0
+    const isRagEnabled = process.env.WEAVIATE_URL && process.env.OPENAI_API_KEY
+
+    if (isRagEnabled) {
+      try {
+        const { retrieve, getRetrievalDecision } = await import('@/lib/rag')
+        const ragResult = await retrieve(
+          latestMessage.content,
+          { final_top_k: 3 },
+          {
+            functionType: functionTypeToContext[functionType],
+            userRole: userRole || undefined,
+            previousQueries: messages.slice(-5).filter(m => m.role === 'user').map(m => m.content),
+          }
+        )
+
+        ragConfidence = ragResult.confidence
+        const decision = getRetrievalDecision(ragConfidence)
+
+        if (ragResult.chunks.length > 0 && decision.action !== 'escalate') {
+          ragContext = `\n\n<KNOWLEDGE_CONTEXT confidence="${ragConfidence.toFixed(2)}">\n${ragResult.chunks.map(c => c.chunk.text).join('\n\n---\n\n')}\n</KNOWLEDGE_CONTEXT>`
+          console.log(`[RAG] Retrieved ${ragResult.chunks.length} chunks with confidence ${ragConfidence.toFixed(2)}`)
+        }
+      } catch (ragError) {
+        console.warn('[RAG] Retrieval failed, continuing without context:', ragError)
+      }
+    }
+
     // Build system prompt with context
     const systemPrompt = getSystemPrompt(functionType, {
       userRole,
@@ -99,6 +138,14 @@ export async function POST(request: NextRequest) {
       previousBlocks,
       companyName: context.company as string | undefined,
     })
+
+    // Enhance system prompt with RAG context if available
+    const ragInstructions = ragContext ? `
+
+## Knowledge Base Context
+The following context has been retrieved from the ArqAI knowledge base. Use this information to provide accurate, specific answers. Always prefer information from this context over general knowledge. If the context doesn't contain relevant information, acknowledge that and offer to connect the user with the right person.
+
+${ragContext}` : ''
 
     // Format messages for Claude API
     const claudeMessages = messages.map((m) => ({
@@ -123,15 +170,19 @@ export async function POST(request: NextRequest) {
         detectedRole: userRole,
         painPoints,
         shouldCaptureLead: false,
+        ragEnabled: false,
       })
     }
+
+    // Build final system prompt with RAG context
+    const finalSystemPrompt = enhancedSystemPrompt + ragInstructions
 
     // Call Claude API
     const client = getAnthropicClient()
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
-      system: enhancedSystemPrompt,
+      system: finalSystemPrompt,
       messages: claudeMessages,
     })
 
@@ -153,6 +204,8 @@ export async function POST(request: NextRequest) {
       detectedRole: userRole,
       painPoints,
       shouldCaptureLead: captureLeadNow,
+      ragEnabled: isRagEnabled,
+      ragConfidence: ragConfidence > 0 ? ragConfidence : undefined,
     })
   } catch (error) {
     console.error('Chat API error:', error)
