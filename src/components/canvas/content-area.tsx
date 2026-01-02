@@ -3,9 +3,22 @@
 import { motion } from 'framer-motion'
 import { useConversationStore } from '@/stores/conversation-store'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { BlockRenderer } from './block-renderer'
 import { Server, TrendingUp, HeadphonesIcon, Megaphone } from 'lucide-react'
-import type { FunctionType } from '@/types'
+import type { FunctionType, BlockType } from '@/types'
+
+// Import all block components
+import {
+  ROICalculator,
+  DemoVideo,
+  SecurityReview,
+  ArchitectureDiagram,
+  IntegrationChecklist,
+  DeploymentTimeline,
+  CaseStudy,
+  LiveStats,
+  CodeSnippet,
+  ComparisonTable,
+} from '@/components/blocks'
 
 interface ContentAreaProps {
   functionName: string
@@ -26,13 +39,51 @@ const functionColors: Record<FunctionType, string> = {
   'demand-generation': 'from-orange-500 to-orange-600',
 }
 
+// Default blocks to show for each function type - all shown from the start
+const defaultBlocks: Record<FunctionType, BlockType[]> = {
+  'it-infrastructure': [
+    'architecture-diagram',
+    'roi-calculator',
+    'integration-checklist',
+    'deployment-timeline',
+    'security-review',
+    'case-study',
+  ],
+  'revenue-operations': [
+    'roi-calculator',
+    'integration-checklist',
+    'case-study',
+    'live-stats',
+    'deployment-timeline',
+    'comparison-table',
+  ],
+  'customer-success': [
+    'roi-calculator',
+    'case-study',
+    'integration-checklist',
+    'live-stats',
+    'deployment-timeline',
+    'demo-video',
+  ],
+  'demand-generation': [
+    'roi-calculator',
+    'case-study',
+    'integration-checklist',
+    'live-stats',
+    'comparison-table',
+    'deployment-timeline',
+  ],
+}
+
 export function ContentArea({ functionName, functionDescription }: ContentAreaProps) {
   const currentFunction = useConversationStore((state) => state.currentFunction)
-  const displayedBlocks = useConversationStore((state) => state.displayedBlocks)
-  const messages = useConversationStore((state) => state.messages)
 
   const FunctionIcon = currentFunction ? functionIcons[currentFunction] : Server
   const colorClass = currentFunction ? functionColors[currentFunction] : 'from-blue-500 to-blue-600'
+  const functionType: FunctionType = currentFunction || 'it-infrastructure'
+
+  // Get the default blocks for this function type
+  const blocksToShow = defaultBlocks[functionType]
 
   return (
     <ScrollArea className="h-full">
@@ -86,99 +137,58 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
           </div>
         </motion.div>
 
-        {/* Getting Started Prompt */}
-        {messages.length === 0 && displayedBlocks.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-muted/50 rounded-xl p-6 border border-border"
-          >
-            <h2 className="text-foreground font-semibold mb-3">Get Started</h2>
-            <p className="text-muted-foreground text-sm mb-4">
-              Ask ArqBot about this use case to explore how ArqAI can help. Try questions like:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {getSuggestedQuestions(currentFunction).map((question, index) => (
-                <button
-                  key={index}
-                  className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm hover:bg-arq-deep-blue/10 hover:text-foreground transition-colors border border-border"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Content Blocks */}
-        {displayedBlocks.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-foreground font-semibold">Generated Content</h2>
-            {displayedBlocks.map((block, index) => (
-              <motion.div
-                key={block.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <BlockRenderer block={block} />
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {/* Placeholder for future content */}
-        {messages.length > 0 && displayedBlocks.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <p className="text-muted-foreground text-sm">
-              Content blocks will appear here as you chat with ArqBot.
-            </p>
-            <p className="text-muted-foreground/70 text-xs mt-2">
-              Try asking about ROI, security, architecture, or deployment timelines.
-            </p>
-          </motion.div>
-        )}
+        {/* Content Blocks - All shown from the start */}
+        <div className="space-y-6">
+          {blocksToShow.map((blockType, index) => (
+            <motion.div
+              key={blockType}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+            >
+              <BlockWrapper blockType={blockType} functionType={functionType} />
+            </motion.div>
+          ))}
+        </div>
       </div>
     </ScrollArea>
   )
 }
 
-function getSuggestedQuestions(functionType: FunctionType | null): string[] {
-  const baseQuestions = [
-    "What's the ROI?",
-    "How secure is it?",
-    "Show me the architecture",
-  ]
+// Component to render each block type
+function BlockWrapper({ blockType, functionType }: { blockType: BlockType; functionType: FunctionType }) {
+  switch (blockType) {
+    case 'roi-calculator':
+      return <ROICalculator functionType={functionType} />
 
-  const functionQuestions: Record<FunctionType, string[]> = {
-    'it-infrastructure': [
-      "How does it handle incidents?",
-      "Can it integrate with ServiceNow?",
-      "What about compliance?",
-    ],
-    'revenue-operations': [
-      "How does it sync with Salesforce?",
-      "Can it automate data entry?",
-      "What metrics does it track?",
-    ],
-    'customer-success': [
-      "How does it handle tickets?",
-      "Can it escalate to humans?",
-      "What's the response time?",
-    ],
-    'demand-generation': [
-      "How does it qualify leads?",
-      "Can it personalize campaigns?",
-      "What integrations are supported?",
-    ],
+    case 'demo-video':
+      return <DemoVideo functionType={functionType} />
+
+    case 'security-review':
+      return <SecurityReview data={{}} />
+
+    case 'architecture-diagram':
+      return <ArchitectureDiagram functionType={functionType} data={{}} />
+
+    case 'integration-checklist':
+      return <IntegrationChecklist functionType={functionType} data={{}} />
+
+    case 'deployment-timeline':
+      return <DeploymentTimeline functionType={functionType} data={{}} />
+
+    case 'case-study':
+      return <CaseStudy functionType={functionType} data={{}} />
+
+    case 'live-stats':
+      return <LiveStats data={{}} />
+
+    case 'code-snippet':
+      return <CodeSnippet functionType={functionType} data={{}} />
+
+    case 'comparison-table':
+      return <ComparisonTable functionType={functionType} data={{}} />
+
+    default:
+      return null
   }
-
-  return functionType
-    ? [...baseQuestions, ...functionQuestions[functionType]].slice(0, 6)
-    : baseQuestions
 }

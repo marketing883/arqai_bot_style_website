@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { MessageCircle } from 'lucide-react'
 import { useConversationStore } from '@/stores/conversation-store'
 import { ChatSidebar } from './chat-sidebar'
 import { ContentArea } from './content-area'
-import { CanvasHeader } from './canvas-header'
+import { Header } from '@/components/layout/header'
 import { MobileChatDrawer } from './mobile-chat-drawer'
 import type { FunctionType } from '@/types'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 interface CanvasLayoutProps {
   functionId: FunctionType
@@ -34,11 +35,16 @@ export function CanvasLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Canvas Header */}
-      <CanvasHeader
-        functionName={functionName}
-        onOpenChat={() => setIsMobileChatOpen(true)}
-      />
+      {/* Main Site Header */}
+      <Header />
+
+      {/* Mobile Chat Button - Fixed at bottom right */}
+      <Button
+        onClick={() => setIsMobileChatOpen(true)}
+        className="md:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-arq-deep-blue text-white shadow-lg hover:bg-arq-deep-blue/90"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </Button>
 
       {/* Main Canvas Area */}
       <div className="pt-16 h-screen flex">
