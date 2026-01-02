@@ -214,45 +214,109 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
                   <AnimatePresence>
                     {highlightedBlock === blockType && (
                       <>
-                        {/* Outer glow */}
+                        {/* Animated gradient sweep */}
                         <motion.div
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          transition={{ duration: 0.4 }}
-                          className="absolute -inset-3 bg-gradient-to-r from-arq-lime/40 via-emerald-400/30 to-arq-lime/40 rounded-[2rem] blur-2xl -z-10"
+                          initial={{ opacity: 0, x: '-100%' }}
+                          animate={{
+                            opacity: [0, 0.6, 0],
+                            x: ['100%', '-100%']
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 1,
+                            ease: 'easeInOut'
+                          }}
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-arq-lime/30 to-transparent rounded-2xl pointer-events-none z-20"
                         />
-                        {/* Inner glow */}
+
+                        {/* Outer diffused glow */}
                         <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="absolute -inset-1 bg-gradient-to-r from-arq-lime/20 to-emerald-400/20 rounded-3xl blur-md -z-10"
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{
+                            opacity: [0.4, 0.7, 0.4],
+                            scale: [1, 1.02, 1]
+                          }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{
+                            duration: 2.5,
+                            repeat: Infinity,
+                            ease: 'easeInOut'
+                          }}
+                          className="absolute -inset-4 bg-gradient-to-r from-arq-lime/30 via-emerald-400/40 to-cyan-400/30 rounded-[2rem] blur-2xl -z-10"
                         />
+
+                        {/* Inner glow ring */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{
+                            opacity: [0.5, 0.8, 0.5],
+                            scale: 1
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="absolute -inset-1 bg-gradient-to-br from-arq-lime/25 via-emerald-400/20 to-arq-lime/25 rounded-3xl blur-lg -z-10"
+                        />
+
+                        {/* Sparkle dots */}
+                        {[...Array(4)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{
+                              opacity: [0, 1, 0],
+                              scale: [0.5, 1, 0.5]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              delay: i * 0.4,
+                              ease: 'easeInOut'
+                            }}
+                            className="absolute w-2 h-2 bg-arq-lime rounded-full -z-10"
+                            style={{
+                              top: i === 0 ? '-4px' : i === 1 ? '50%' : i === 2 ? 'auto' : '50%',
+                              bottom: i === 2 ? '-4px' : 'auto',
+                              left: i === 0 ? '50%' : i === 3 ? '-4px' : 'auto',
+                              right: i === 1 ? '-4px' : 'auto',
+                              transform: 'translate(-50%, -50%)'
+                            }}
+                          />
+                        ))}
                       </>
                     )}
                   </AnimatePresence>
 
                   {/* Glass container */}
                   <motion.div
+                    initial={false}
                     animate={highlightedBlock === blockType ? {
+                      scale: [1, 1.015, 1],
+                      y: [0, -4, 0],
                       boxShadow: [
-                        '0 0 0 2px rgba(167, 255, 131, 0.3), 0 25px 50px -12px rgba(167, 255, 131, 0.25)',
-                        '0 0 0 2px rgba(167, 255, 131, 0.5), 0 25px 50px -12px rgba(167, 255, 131, 0.35)',
-                        '0 0 0 2px rgba(167, 255, 131, 0.3), 0 25px 50px -12px rgba(167, 255, 131, 0.25)',
+                        '0 0 0 2px rgba(167, 255, 131, 0.4), 0 25px 60px -12px rgba(167, 255, 131, 0.3), 0 0 40px -10px rgba(52, 211, 153, 0.3)',
+                        '0 0 0 3px rgba(167, 255, 131, 0.6), 0 30px 70px -12px rgba(167, 255, 131, 0.4), 0 0 50px -8px rgba(52, 211, 153, 0.4)',
+                        '0 0 0 2px rgba(167, 255, 131, 0.4), 0 25px 60px -12px rgba(167, 255, 131, 0.3), 0 0 40px -10px rgba(52, 211, 153, 0.3)',
                       ],
                     } : {
+                      scale: 1,
+                      y: 0,
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
                     }}
                     transition={highlightedBlock === blockType ? {
-                      duration: 2,
+                      duration: 2.5,
                       repeat: Infinity,
                       ease: 'easeInOut'
-                    } : { duration: 0.3 }}
+                    } : {
+                      duration: 0.5,
+                      ease: [0.4, 0, 0.2, 1]
+                    }}
                     className={cn(
                       'relative overflow-hidden rounded-2xl',
-                      'bg-white/80 backdrop-blur-sm border border-white/50',
-                      highlightedBlock === blockType && 'z-10'
+                      'bg-white/90 backdrop-blur-md border transition-colors duration-300',
+                      highlightedBlock === blockType
+                        ? 'border-arq-lime/50 z-10'
+                        : 'border-white/50'
                     )}
                   >
                     <BlockWrapper

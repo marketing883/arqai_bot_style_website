@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { PageWithChat } from '@/components/layout/page-with-chat'
 import { Container, SectionHeader, SectionWrapper } from '@/components/shared/section-wrapper'
 import { CTAButton } from '@/components/shared/cta-button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -70,8 +71,9 @@ const competitors = [
 
 export default function PlatformPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <PageWithChat pageContext="platform">
+      <div className="min-h-screen flex flex-col">
+        <Header />
 
       <main className="flex-1 pt-16">
         {/* Hero Section */}
@@ -471,7 +473,8 @@ export default function PlatformPage() {
         </section>
       </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </PageWithChat>
   )
 }
