@@ -1,11 +1,24 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
-import type { ContentBlock } from '@/types'
+import type { ContentBlock, FunctionType } from '@/types'
 import { useConversationStore } from '@/stores/conversation-store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+// Import all block components
+import {
+  ROICalculator,
+  DemoVideo,
+  SecurityReview,
+  ArchitectureDiagram,
+  IntegrationChecklist,
+  DeploymentTimeline,
+  CaseStudy,
+  LiveStats,
+  CodeSnippet,
+  ComparisonTable,
+} from '@/components/blocks'
 
 interface BlockRendererProps {
   block: ContentBlock
@@ -13,31 +26,84 @@ interface BlockRendererProps {
 
 export function BlockRenderer({ block }: BlockRendererProps) {
   const removeBlock = useConversationStore((state) => state.removeBlock)
+  const currentFunction = useConversationStore((state) => state.currentFunction)
 
-  // Placeholder renders for each block type
-  // These will be replaced with full implementations in Phase 5
+  // Default to a function type if not set
+  const functionType: FunctionType = currentFunction || 'it-infrastructure'
+
   const renderBlock = () => {
     switch (block.type) {
       case 'roi-calculator':
-        return <ROICalculatorPlaceholder data={block.data} />
+        return (
+          <ROICalculator
+            functionType={functionType}
+            defaultInputs={block.data.defaultInputs as Record<string, number> | undefined}
+          />
+        )
+
       case 'demo-video':
-        return <DemoVideoPlaceholder data={block.data} />
+        return (
+          <DemoVideo
+            functionType={functionType}
+            videoId={block.data.videoId as string | undefined}
+            title={block.data.title as string | undefined}
+          />
+        )
+
       case 'security-review':
-        return <SecurityReviewPlaceholder data={block.data} />
+        return <SecurityReview data={block.data} />
+
       case 'architecture-diagram':
-        return <ArchitectureDiagramPlaceholder data={block.data} />
+        return <ArchitectureDiagram functionType={functionType} data={block.data} />
+
       case 'integration-checklist':
-        return <IntegrationChecklistPlaceholder data={block.data} />
+        return (
+          <IntegrationChecklist
+            functionType={functionType}
+            techStack={block.data.techStack as string[] | undefined}
+            data={block.data}
+          />
+        )
+
       case 'deployment-timeline':
-        return <DeploymentTimelinePlaceholder data={block.data} />
+        return (
+          <DeploymentTimeline
+            functionType={functionType}
+            companyName={block.data.companyName as string | undefined}
+            data={block.data}
+          />
+        )
+
       case 'case-study':
-        return <CaseStudyPlaceholder data={block.data} />
+        return (
+          <CaseStudy
+            functionType={functionType}
+            industry={block.data.industry as string | undefined}
+            data={block.data}
+          />
+        )
+
       case 'live-stats':
-        return <LiveStatsPlaceholder data={block.data} />
+        return <LiveStats data={block.data} />
+
       case 'code-snippet':
-        return <CodeSnippetPlaceholder data={block.data} />
+        return (
+          <CodeSnippet
+            functionType={functionType}
+            language={block.data.language as string | undefined}
+            data={block.data}
+          />
+        )
+
       case 'comparison-table':
-        return <ComparisonTablePlaceholder data={block.data} />
+        return (
+          <ComparisonTable
+            functionType={functionType}
+            competitors={block.data.competitors as string[] | undefined}
+            data={block.data}
+          />
+        )
+
       default:
         return <GenericBlockPlaceholder type={block.type} />
     }
@@ -60,167 +126,16 @@ export function BlockRenderer({ block }: BlockRendererProps) {
   )
 }
 
-// Placeholder Components (to be replaced in Phase 5)
-
-function ROICalculatorPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">ROI Calculator</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">ROI Calculator (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function DemoVideoPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Demo Video</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="aspect-video rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Demo Video (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function SecurityReviewPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Security Review</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Security Review Package (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ArchitectureDiagramPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Architecture Diagram</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-64 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Interactive Architecture (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function IntegrationChecklistPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Integration Checklist</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Integration Checklist (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function DeploymentTimelinePlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">30-Day Deployment Timeline</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Deployment Timeline (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function CaseStudyPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Case Study</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Case Study (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function LiveStatsPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Live Stats</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-32 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Live Stats (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function CodeSnippetPlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Code Snippet</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-arq-slate font-mono text-sm flex items-center justify-center">
-          <p className="text-white/40">Code Snippet (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ComparisonTablePlaceholder({ data }: { data: Record<string, unknown> }) {
-  return (
-    <Card className="bg-white/5 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white">Comparison Table</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-48 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Comparison Table (Phase 5)</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
+// Fallback for unknown block types
 function GenericBlockPlaceholder({ type }: { type: string }) {
   return (
     <Card className="bg-white/5 border-white/10">
       <CardHeader>
-        <CardTitle className="text-white capitalize">{type.replace('-', ' ')}</CardTitle>
+        <CardTitle className="text-white capitalize">{type.replace(/-/g, ' ')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-32 rounded-lg bg-white/5 flex items-center justify-center">
-          <p className="text-white/40 text-sm">Content Block (Phase 5)</p>
+          <p className="text-white/40 text-sm">Unknown block type: {type}</p>
         </div>
       </CardContent>
     </Card>
