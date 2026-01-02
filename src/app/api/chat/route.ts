@@ -264,8 +264,8 @@ function getMockResponse(
   const lowerMessage = userMessage.toLowerCase()
   const functionName = formatFunction(functionType)
 
-  // After 4-5 exchanges, ask for contact naturally
-  if (messageCount >= 8) {
+  // After 5 exchanges, ask for name/email naturally
+  if (messageCount >= 6) {
     return getLeadCaptureResponse(functionType)
   }
 
@@ -279,133 +279,92 @@ function getMockResponse(
     return getContinuationResponse(functionType, messageCount)
   }
 
-  // Help questions
-  if (lowerMessage.includes('help') || lowerMessage.includes('can you') || lowerMessage.includes('what can')) {
-    return `For **${functionName}**, I can help with:
+  // Use cases / customers / case study - REFERENCE THE LEFT PANEL
+  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('example') || lowerMessage.includes('case stud') || lowerMessage.includes('results') || lowerMessage.includes('show')) {
+    return `I've highlighted a **Case Study** on the left panel for you.
 
-• **Solutions** — How we automate workflows with governance
-• **ROI** — 30-40% cost reduction, 85% automation rates
-• **Security** — SOC 2, HIPAA, GDPR capabilities
-• **Implementation** — 30-day deployment
+This shows a **40% reduction** in manual work for a financial services client.
 
-What matters most to you?`
+By the way, what's your name? I'd love to personalize this conversation!`
   }
 
-  // Marketing questions
-  if (lowerMessage.includes('marketing') || lowerMessage.includes('demand') || lowerMessage.includes('campaign')) {
-    return `**Autonomous Demand Generation** helps with:
+  // ROI / pricing questions - REFERENCE THE CALCULATOR
+  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('price') || lowerMessage.includes('pricing') || lowerMessage.includes('save') || lowerMessage.includes('money')) {
+    return `Check out the **ROI Calculator** on the left—you can input your own numbers!
 
-• **Campaigns** — Multi-channel with brand guardrails
-• **Lead Scoring** — AI-powered routing to the right rep
-• **Personalization** — Dynamic content at scale
+Typical results: **30-40% cost reduction** in 90 days.
 
-**Results**: 50% faster launches, 35% better conversion.
-
-Want to see how it integrates with your stack?`
+What's your name? I can customize the analysis for you.`
   }
 
-  // Use cases / customers
-  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('example') || lowerMessage.includes('case stud') || lowerMessage.includes('results')) {
-    return `**12 enterprise customers**, $500K ARR, zero churn:
+  // Security questions - REFERENCE SECURITY REVIEW
+  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc') || lowerMessage.includes('hipaa') || lowerMessage.includes('gdpr')) {
+    return `I've brought up the **Security & Compliance** section on the left.
 
-• **Finance** — MTTR reduced from 4 hours to 18 minutes
-• **Healthcare** — HIPAA-compliant automation
-• **Telecom** — 85% of incidents handled autonomously
+We're SOC 2 ready with HIPAA and GDPR capabilities.
 
-All deployed in **30 days**. What industry are you in?`
+What compliance requirements does your organization have?`
+  }
+
+  // Architecture / technical questions - REFERENCE ARCHITECTURE
+  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does') || lowerMessage.includes('technical') || lowerMessage.includes('patent') || lowerMessage.includes('work')) {
+    return `The **Architecture Diagram** on the left shows our three patented technologies.
+
+Our Trust-Aware Orchestration™ is what makes us production-ready from day one.
+
+Would you like me to explain any specific component?`
+  }
+
+  // Integration questions - REFERENCE INTEGRATION CHECKLIST
+  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow') || lowerMessage.includes('stack')) {
+    return `The **Integration Checklist** on the left shows our pre-built connectors.
+
+Most integrations take **less than a day** to set up.
+
+What tools are in your current stack?`
+  }
+
+  // Timeline questions - REFERENCE TIMELINE
+  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('30 day') || lowerMessage.includes('start')) {
+    return `Check the **Deployment Timeline** on the left—we do 30 days from contract to production.
+
+Week 1 is discovery, Weeks 2-3 are integration, Week 4 is go-live.
+
+What's driving your timeline?`
+  }
+
+  // Demo / video questions
+  if (lowerMessage.includes('demo') || lowerMessage.includes('video') || lowerMessage.includes('see it') || lowerMessage.includes('watch')) {
+    return `I've highlighted the **Product Demo** on the left for you.
+
+This shows the governance controls in action.
+
+Want me to schedule a live walkthrough with our team?`
+  }
+
+  // Competitor questions - REFERENCE COMPARISON
+  if (lowerMessage.includes('vs') || lowerMessage.includes('compare') || lowerMessage.includes('zapier') || lowerMessage.includes('langchain') || lowerMessage.includes('different')) {
+    return `The **Comparison Table** on the left shows how we stack up.
+
+Key difference: governance-first architecture with three patents.
+
+What alternatives are you considering?`
   }
 
   // Contact / demo questions
-  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('demo') || lowerMessage.includes('call') || lowerMessage.includes('meeting')) {
+  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('call') || lowerMessage.includes('meeting') || lowerMessage.includes('email')) {
     return `Happy to connect you with our team!
 
-• **Technical** — Solutions Architect walkthrough
-• **Business** — ROI and customer references
-• **Security** — Compliance deep-dive
-
-What's your work email? I'll have the right person reach out.`
+What's your **name** and **work email**? I'll have the right person reach out within 24 hours.`
   }
 
-  // ROI / pricing questions
-  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('price') || lowerMessage.includes('pricing')) {
-    return `Typical ROI for **${functionName}**:
+  // What is ArqAI / help
+  if (lowerMessage.includes('what is') || lowerMessage.includes('arqai') || lowerMessage.includes('explain') || lowerMessage.includes('help') || lowerMessage.includes('can you')) {
+    return `**ArqAI** deploys AI agents that enterprises trust in production.
 
-• **30-40%** cost reduction in 90 days
-• **85%** automation rate
-• **Positive ROI** in first quarter
+Browse the content on the left—I'll highlight the most relevant sections as we chat.
 
-Pricing is outcome-based, not per-seat. Want a personalized ROI estimate?`
-  }
-
-  // Security questions
-  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc') || lowerMessage.includes('hipaa') || lowerMessage.includes('gdpr')) {
-    return `**Security & Compliance**:
-
-• SOC 2 Type II (in progress)
-• HIPAA-compliant architecture
-• GDPR ready with data residency
-• Zero-trust, end-to-end encryption
-• Cryptographic audit trails
-
-Want to see our security documentation?`
-  }
-
-  // Architecture / technical questions
-  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does') || lowerMessage.includes('technical') || lowerMessage.includes('patent')) {
-    return `**Three Patented Technologies**:
-
-1. **Trust-Aware Orchestration™** — Risk-scores every action
-2. **Compliance-Aware Compiler™** — Validates before execution
-3. **Adaptive RAG™** — Self-correcting knowledge retrieval
-
-Production-ready from day one. Want the architecture diagram?`
-  }
-
-  // Integration questions
-  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow')) {
-    return `**Integration-first design**:
-
-${getIntegrationList(functionType)}
-
-Cloud, model, and vertical agnostic. Most integrations take **< 1 day**.
-
-What's in your current stack?`
-  }
-
-  // Timeline questions
-  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('30 day')) {
-    return `**30-Day Deployment**:
-
-• **Week 1** — Blueprint & discovery
-• **Weeks 2-3** — Integration & configuration
-• **Week 4** — Go-live with monitoring
-
-Zero churn, 100% customer expansion. Ready to start?`
-  }
-
-  // Competitor questions
-  if (lowerMessage.includes('vs') || lowerMessage.includes('compare') || lowerMessage.includes('zapier') || lowerMessage.includes('langchain')) {
-    return `**vs. Zapier/Make** — No governance or audit trails
-**vs. LangChain** — Framework, not a platform
-**vs. ServiceNow AI** — Vendor-locked
-
-ArqAI: **Governance-first**, three patents, stack-agnostic.
-
-Want a detailed comparison?`
-  }
-
-  // What is ArqAI
-  if (lowerMessage.includes('what is') || lowerMessage.includes('arqai') || lowerMessage.includes('explain') || lowerMessage.includes('overview')) {
-    return `**ArqAI** — AI agents enterprises trust in production.
-
-**Problem**: 87% of AI pilots never reach production.
-**Solution**: Governance built-in, not bolted-on.
-
-• Three patents
-• 30-day deployment
-• Zero customer churn
-
-What would you like to explore—ROI, architecture, or use cases?`
+What would you like to explore first?`
   }
 
   // Default response

@@ -34,10 +34,10 @@ const functionIcons: Record<FunctionType, React.ElementType> = {
 }
 
 const functionColors: Record<FunctionType, string> = {
-  'it-infrastructure': 'from-blue-500 to-blue-600',
-  'revenue-operations': 'from-green-500 to-green-600',
-  'customer-success': 'from-purple-500 to-purple-600',
-  'demand-generation': 'from-orange-500 to-orange-600',
+  'it-infrastructure': 'from-blue-500 to-cyan-400',
+  'revenue-operations': 'from-emerald-500 to-teal-400',
+  'customer-success': 'from-violet-500 to-purple-400',
+  'demand-generation': 'from-orange-500 to-amber-400',
 }
 
 // Block display names for headers
@@ -62,7 +62,7 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
   const activeTopics = useConversationStore((state) => state.activeTopics)
 
   const FunctionIcon = currentFunction ? functionIcons[currentFunction] : Server
-  const colorClass = currentFunction ? functionColors[currentFunction] : 'from-blue-500 to-blue-600'
+  const colorClass = currentFunction ? functionColors[currentFunction] : 'from-blue-500 to-cyan-400'
   const functionType: FunctionType = currentFunction || 'it-infrastructure'
 
   // Get ordered blocks - active blocks first, then remaining in order
@@ -74,165 +74,259 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 lg:p-8 space-y-6">
-        {/* Hero Section */}
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 pointer-events-none" />
+
+      <div className="relative p-6 lg:p-8 space-y-6">
+        {/* Hero Section with Glass Effect */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-white border border-border shadow-sm p-8"
+          className="relative overflow-hidden rounded-3xl"
         >
+          {/* Glass background */}
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
+
+          {/* Gradient border effect */}
+          <div className="absolute inset-0 rounded-3xl border border-white/50" />
+
+          {/* Subtle inner glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-transparent to-transparent" />
+
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 opacity-[0.03]">
             <div
               className="absolute inset-0"
               style={{
                 backgroundImage: `radial-gradient(circle at 1px 1px, #0A2463 1px, transparent 0)`,
-                backgroundSize: '30px 30px',
+                backgroundSize: '24px 24px',
               }}
             />
           </div>
 
-          <div className="relative">
-            {/* Icon */}
-            <div
-              className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClass} text-white mb-6`}
+          <div className="relative p-8">
+            {/* Gradient Icon */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+              className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClass} text-white mb-6 shadow-lg`}
             >
               <FunctionIcon className="w-8 h-8" />
-            </div>
+            </motion.div>
 
             {/* Title */}
-            <h1 className="text-3xl lg:text-4xl font-bold text-arq-deep-blue mb-4">
+            <motion.h1
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="text-3xl lg:text-4xl font-bold text-arq-deep-blue mb-4"
+            >
               {functionName}
-            </h1>
+            </motion.h1>
 
             {/* Description */}
-            <p className="text-lg text-muted-foreground max-w-2xl">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg text-muted-foreground max-w-2xl"
+            >
               {functionDescription}
-            </p>
+            </motion.p>
 
-            {/* Active Topics Indicator */}
-            {activeTopics.length > 0 && activeTopics[0] !== 'general' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-wrap gap-2 mt-6"
-              >
-                <span className="text-sm text-muted-foreground">Currently exploring:</span>
-                {activeTopics.map(topic => (
-                  <span
-                    key={topic}
-                    className="px-3 py-1 rounded-full bg-arq-lime/20 text-arq-deep-blue text-sm font-medium flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    {topic.replace('-', ' ')}
-                  </span>
-                ))}
-              </motion.div>
-            )}
+            {/* Active Topics Indicator with glass effect */}
+            <AnimatePresence>
+              {activeTopics.length > 0 && activeTopics[0] !== 'general' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="flex flex-wrap gap-2 mt-6"
+                >
+                  <span className="text-sm text-muted-foreground">Exploring:</span>
+                  {activeTopics.map((topic, i) => (
+                    <motion.span
+                      key={topic}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="px-3 py-1.5 rounded-full bg-gradient-to-r from-arq-lime/30 to-emerald-400/20 backdrop-blur-sm text-arq-deep-blue text-sm font-medium flex items-center gap-1.5 border border-arq-lime/30 shadow-sm"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-arq-lime" />
+                      {topic.replace('-', ' ')}
+                    </motion.span>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap gap-4 mt-6">
-              <div className="px-4 py-2 rounded-lg bg-arq-lime/10 border border-arq-lime/20">
-                <span className="text-arq-deep-blue font-semibold">30 days</span>
+            {/* Quick Stats with glass effect */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="flex flex-wrap gap-4 mt-6"
+            >
+              <div className="px-4 py-2.5 rounded-xl bg-white/60 backdrop-blur-sm border border-arq-lime/20 shadow-sm">
+                <span className="text-arq-deep-blue font-bold">30 days</span>
                 <span className="text-muted-foreground ml-2">to production</span>
               </div>
-              <div className="px-4 py-2 rounded-lg bg-arq-lime/10 border border-arq-lime/20">
-                <span className="text-arq-deep-blue font-semibold">3 patents</span>
+              <div className="px-4 py-2.5 rounded-xl bg-white/60 backdrop-blur-sm border border-arq-lime/20 shadow-sm">
+                <span className="text-arq-deep-blue font-bold">3 patents</span>
                 <span className="text-muted-foreground ml-2">protecting innovation</span>
               </div>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* Active/Expanded Content Blocks */}
+        {/* Active/Expanded Content Blocks with Glass Morphism */}
         <LayoutGroup>
-          <AnimatePresence mode="popLayout">
-            {expandedBlocks.map((blockType) => (
-              <motion.div
-                key={blockType}
-                layoutId={blockType}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  transition: { type: 'spring', stiffness: 300, damping: 30 }
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.95,
-                  transition: { duration: 0.2 }
-                }}
-                className={cn(
-                  'relative',
-                  highlightedBlock === blockType && 'z-10'
-                )}
-              >
-                {/* Highlight glow effect */}
-                {highlightedBlock === blockType && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute -inset-2 bg-arq-lime/20 rounded-3xl blur-xl -z-10"
-                  />
-                )}
+          <div className="space-y-5">
+            <AnimatePresence mode="popLayout">
+              {expandedBlocks.map((blockType, index) => (
                 <motion.div
-                  animate={highlightedBlock === blockType ? {
-                    boxShadow: '0 0 0 3px rgba(167, 255, 131, 0.5)',
-                  } : {
-                    boxShadow: 'none',
+                  key={blockType}
+                  layout
+                  layoutId={`block-${blockType}`}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 30,
+                      delay: index * 0.05
+                    }
                   }}
-                  transition={{ duration: 0.3 }}
-                  className="rounded-2xl overflow-hidden"
+                  exit={{
+                    opacity: 0,
+                    y: -20,
+                    scale: 0.95,
+                    transition: { duration: 0.25 }
+                  }}
+                  className="relative"
                 >
-                  <BlockWrapper
-                    blockType={blockType}
-                    functionType={functionType}
-                    isHighlighted={highlightedBlock === blockType}
-                  />
+                  {/* Highlight glow effect - futuristic */}
+                  <AnimatePresence>
+                    {highlightedBlock === blockType && (
+                      <>
+                        {/* Outer glow */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.4 }}
+                          className="absolute -inset-3 bg-gradient-to-r from-arq-lime/40 via-emerald-400/30 to-arq-lime/40 rounded-[2rem] blur-2xl -z-10"
+                        />
+                        {/* Inner glow */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute -inset-1 bg-gradient-to-r from-arq-lime/20 to-emerald-400/20 rounded-3xl blur-md -z-10"
+                        />
+                      </>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Glass container */}
+                  <motion.div
+                    animate={highlightedBlock === blockType ? {
+                      boxShadow: [
+                        '0 0 0 2px rgba(167, 255, 131, 0.3), 0 25px 50px -12px rgba(167, 255, 131, 0.25)',
+                        '0 0 0 2px rgba(167, 255, 131, 0.5), 0 25px 50px -12px rgba(167, 255, 131, 0.35)',
+                        '0 0 0 2px rgba(167, 255, 131, 0.3), 0 25px 50px -12px rgba(167, 255, 131, 0.25)',
+                      ],
+                    } : {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }}
+                    transition={highlightedBlock === blockType ? {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut'
+                    } : { duration: 0.3 }}
+                    className={cn(
+                      'relative overflow-hidden rounded-2xl',
+                      'bg-white/80 backdrop-blur-sm border border-white/50',
+                      highlightedBlock === blockType && 'z-10'
+                    )}
+                  >
+                    <BlockWrapper
+                      blockType={blockType}
+                      functionType={functionType}
+                      isHighlighted={highlightedBlock === blockType}
+                    />
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              ))}
+            </AnimatePresence>
+          </div>
         </LayoutGroup>
 
-        {/* Collapsed/Minimized Blocks */}
-        {collapsedBlocks.length > 0 && (
-          <div className="pt-4">
-            <p className="text-sm text-muted-foreground mb-3">More resources:</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <AnimatePresence>
-                {collapsedBlocks.slice(0, 6).map((blockType) => (
+        {/* Collapsed/Minimized Blocks with Glass Effect */}
+        <AnimatePresence>
+          {collapsedBlocks.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="pt-6"
+            >
+              <p className="text-sm text-muted-foreground mb-4 font-medium">More resources:</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {collapsedBlocks.slice(0, 6).map((blockType, i) => (
                   <CollapsedBlock
                     key={blockType}
                     blockType={blockType}
+                    index={i}
                   />
                 ))}
-              </AnimatePresence>
-            </div>
-          </div>
-        )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </ScrollArea>
   )
 }
 
-// Collapsed block preview card
-function CollapsedBlock({ blockType }: { blockType: BlockType }) {
+// Collapsed block preview card with glass effect
+function CollapsedBlock({ blockType, index }: { blockType: BlockType; index: number }) {
   return (
     <motion.div
-      layoutId={blockType}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      layout
+      layoutId={`block-${blockType}`}
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        transition: { delay: index * 0.03 }
+      }}
       exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ scale: 1.02 }}
-      className="p-4 bg-muted/50 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors"
+      whileHover={{
+        scale: 1.03,
+        y: -2,
+        transition: { type: 'spring', stiffness: 400 }
+      }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        'p-4 rounded-xl cursor-pointer transition-all duration-200',
+        'bg-white/60 backdrop-blur-sm',
+        'border border-white/50 hover:border-arq-lime/30',
+        'hover:bg-white/80 hover:shadow-lg hover:shadow-arq-lime/10'
+      )}
     >
       <p className="text-sm font-medium text-foreground truncate">
         {blockNames[blockType]}
       </p>
-      <p className="text-xs text-muted-foreground mt-1">
-        Ask about this →
+      <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+        <span className="w-1 h-1 rounded-full bg-arq-lime" />
+        Ask about this
       </p>
     </motion.div>
   )
