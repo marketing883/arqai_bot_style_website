@@ -44,7 +44,10 @@ export function ChatInput() {
     e?.preventDefault()
 
     const trimmedInput = input.trim()
-    if (!trimmedInput || isLoading || !currentFunction) return
+    if (!trimmedInput || isLoading) return
+
+    // Use current function or default to it-infrastructure for homepage
+    const functionToUse = currentFunction || 'it-infrastructure'
 
     // Add user message
     addMessage('user', trimmedInput)
@@ -68,7 +71,7 @@ export function ChatInput() {
         },
         body: JSON.stringify({
           messages: apiMessages,
-          functionType: currentFunction,
+          functionType: functionToUse,
           userRole: detectedRole,
           previousBlocks,
           messageCount: messages.length + 1,
