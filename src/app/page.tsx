@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/homepage/hero'
 import { FunctionSelector } from '@/components/homepage/function-selector'
 import { TrustIndicators } from '@/components/homepage/trust-indicators'
 import { ValueProposition } from '@/components/homepage/value-proposition'
+import { ChatWidget } from '@/components/homepage/chat-widget'
 
 export default function HomePage() {
   return (
@@ -28,6 +29,9 @@ export default function HomePage() {
       </main>
 
       <Footer />
+
+      {/* Floating Chat Widget */}
+      <ChatWidget />
     </div>
   )
 }

@@ -42,11 +42,11 @@ export function ChatSidebar() {
   }, [shouldShowLeadCapture, leadCaptured, isModalOpen, setShouldShowLeadCapture])
 
   return (
-    <div className="flex flex-col h-full w-full bg-arq-slate">
+    <div className="flex flex-col h-full w-full bg-muted/30">
       {/* Chat Header */}
-      <div className="px-4 py-3 border-b border-white/10">
-        <h2 className="text-white font-medium text-sm">Chat with ArqBot</h2>
-        <p className="text-white/50 text-xs">Ask about this use case</p>
+      <div className="px-4 py-3 border-b border-border bg-background">
+        <h2 className="text-foreground font-medium text-sm">Chat with ArqBot</h2>
+        <p className="text-muted-foreground text-xs">Ask about this use case</p>
       </div>
 
       {/* Messages Area */}
@@ -69,15 +69,15 @@ export function ChatSidebar() {
                 >
                   <path
                     d="M10 90L40 10H60L90 90H70L62 70H38L30 90H10ZM42 55H58L50 30L42 55Z"
-                    fill="#A7FF83"
+                    fill="#0A2463"
                   />
                   <circle cx="70" cy="30" r="12" fill="#A7FF83" />
                 </svg>
               </div>
-              <p className="text-white/70 text-sm mb-2">
+              <p className="text-foreground text-sm mb-2">
                 Hi! I'm ArqBot.
               </p>
-              <p className="text-white/50 text-xs max-w-[200px] mx-auto">
+              <p className="text-muted-foreground text-xs max-w-[200px] mx-auto">
                 Ask me anything about this use case, and I'll show you how ArqAI can help.
               </p>
             </motion.div>

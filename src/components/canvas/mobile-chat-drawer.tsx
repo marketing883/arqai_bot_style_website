@@ -27,11 +27,11 @@ export function MobileChatDrawer({ onClose }: MobileChatDrawerProps) {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-50 h-[85vh] bg-arq-slate rounded-t-2xl lg:hidden overflow-hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 h-[85vh] bg-background rounded-t-2xl lg:hidden overflow-hidden border-t border-border"
       >
         {/* Handle */}
         <div className="flex justify-center py-2">
-          <div className="w-12 h-1 rounded-full bg-white/20" />
+          <div className="w-12 h-1 rounded-full bg-border" />
         </div>
 
         {/* Close Button */}
@@ -39,7 +39,7 @@ export function MobileChatDrawer({ onClose }: MobileChatDrawerProps) {
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="absolute top-2 right-2 text-white/50 hover:text-white hover:bg-white/10"
+          className="absolute top-2 right-2 text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           <X className="w-5 h-5" />
         </Button>

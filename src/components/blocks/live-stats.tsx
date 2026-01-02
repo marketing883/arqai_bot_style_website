@@ -117,18 +117,18 @@ export function LiveStats({ data }: LiveStatsProps) {
   }, [])
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="p-2 rounded-lg bg-green-500/20">
-              <Activity className="w-5 h-5 text-green-400" />
+              <Activity className="w-5 h-5 text-green-600" />
             </div>
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
           </div>
           <div>
-            <CardTitle className="text-white text-lg">Live Platform Stats</CardTitle>
-            <p className="text-white/60 text-sm">Real-time ArqAI metrics</p>
+            <CardTitle className="text-foreground text-lg">Live Platform Stats</CardTitle>
+            <p className="text-muted-foreground text-sm">Real-time ArqAI metrics</p>
           </div>
         </div>
       </CardHeader>
@@ -143,28 +143,28 @@ export function LiveStats({ data }: LiveStatsProps) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors"
+                className="bg-muted/50 rounded-lg p-3 text-center hover:bg-muted transition-colors border border-border"
               >
-                <Icon className={`w-5 h-5 ${stat.color} mx-auto mb-2`} />
-                <div className="text-xl font-bold text-white">
+                <Icon className={`w-5 h-5 ${stat.color.replace('-400', '-600')} mx-auto mb-2`} />
+                <div className="text-xl font-bold text-foreground">
                   {stat.suffix === '%'
                     ? stat.value.toFixed(2)
                     : formatNumber(Math.floor(stat.value))}
                   {stat.suffix}
                 </div>
-                <div className="text-white/50 text-xs">{stat.label}</div>
+                <div className="text-muted-foreground text-xs">{stat.label}</div>
               </motion.div>
             )
           })}
         </div>
 
         {/* Live indicator */}
-        <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-white/10">
+        <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-border">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600" />
           </span>
-          <span className="text-white/50 text-xs">Updated in real-time</span>
+          <span className="text-muted-foreground text-xs">Updated in real-time</span>
         </div>
       </CardContent>
     </Card>

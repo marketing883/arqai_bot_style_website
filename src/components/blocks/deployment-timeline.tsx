@@ -78,21 +78,21 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
   }
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-arq-lime/20">
-              <Calendar className="w-5 h-5 text-arq-lime" />
+              <Calendar className="w-5 h-5 text-arq-deep-blue" />
             </div>
             <div>
-              <CardTitle className="text-white text-lg">30-Day Deployment Timeline</CardTitle>
-              <p className="text-white/60 text-sm">Your path to production</p>
+              <CardTitle className="text-foreground text-lg">30-Day Deployment Timeline</CardTitle>
+              <p className="text-muted-foreground text-sm">Your path to production</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-arq-lime/20">
-            <Clock className="w-4 h-4 text-arq-lime" />
-            <span className="text-arq-lime text-sm font-medium">30 Days</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-arq-deep-blue/10">
+            <Clock className="w-4 h-4 text-arq-deep-blue" />
+            <span className="text-arq-deep-blue text-sm font-medium">30 Days</span>
           </div>
         </div>
       </CardHeader>
@@ -100,13 +100,13 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
       <CardContent className="space-y-6">
         {/* Company Name Input */}
         <div className="flex items-center gap-3">
-          <Building className="w-4 h-4 text-white/40" />
+          <Building className="w-4 h-4 text-muted-foreground" />
           <div className="flex-1">
-            <Label className="text-white/50 text-xs">Personalize for</Label>
+            <Label className="text-muted-foreground text-xs">Personalize for</Label>
             <Input
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="mt-1 bg-white/10 border-white/20 text-white h-8"
+              className="mt-1 bg-muted border-border text-foreground h-8"
               placeholder="Your company name"
             />
           </div>
@@ -115,9 +115,9 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
         {/* Timeline */}
         <div className="relative">
           {/* Progress Line */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-white/10">
+          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border">
             <motion.div
-              className="w-full bg-arq-lime"
+              className="w-full bg-arq-deep-blue"
               initial={{ height: '0%' }}
               animate={{ height: `${((activeStep + 1) / timelineSteps.length) * 100}%` }}
               transition={{ duration: 0.3 }}
@@ -140,31 +140,31 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
                 {/* Step Indicator */}
                 <div className="absolute left-0 top-0">
                   {index <= activeStep ? (
-                    <div className="w-8 h-8 rounded-full bg-arq-lime flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-arq-slate" />
+                    <div className="w-8 h-8 rounded-full bg-arq-deep-blue flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-white" />
                     </div>
                   ) : (
-                    <div className="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center">
-                      <Circle className="w-4 h-4 text-white/40" />
+                    <div className="w-8 h-8 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                      <Circle className="w-4 h-4 text-muted-foreground" />
                     </div>
                   )}
                 </div>
 
                 {/* Step Content */}
                 <div
-                  className={`p-4 rounded-lg transition-colors ${
-                    index === activeStep ? 'bg-white/10' : 'bg-white/5 hover:bg-white/10'
+                  className={`p-4 rounded-lg transition-colors border ${
+                    index === activeStep ? 'bg-muted border-border' : 'bg-muted/50 border-transparent hover:bg-muted'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <span className="text-arq-lime text-xs font-medium">Week {step.week}</span>
-                      <h4 className="text-white font-medium">{step.title}</h4>
+                      <span className="text-arq-deep-blue text-xs font-medium">Week {step.week}</span>
+                      <h4 className="text-foreground font-medium">{step.title}</h4>
                     </div>
-                    <span className="text-white/40 text-xs">{getWeekDate(step.week)}</span>
+                    <span className="text-muted-foreground text-xs">{getWeekDate(step.week)}</span>
                   </div>
 
-                  <p className="text-white/60 text-sm mb-3">{step.description}</p>
+                  <p className="text-muted-foreground text-sm mb-3">{step.description}</p>
 
                   {index === activeStep && (
                     <motion.div
@@ -175,13 +175,13 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
                       {step.tasks.map((task, taskIndex) => (
                         <div
                           key={taskIndex}
-                          className="flex items-center gap-2 text-white/70 text-sm"
+                          className="flex items-center gap-2 text-muted-foreground text-sm"
                         >
-                          <div className="w-1.5 h-1.5 rounded-full bg-arq-lime" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-arq-deep-blue" />
                           {task}
                         </div>
                       ))}
-                      <div className="pt-2 text-white/40 text-xs">
+                      <div className="pt-2 text-muted-foreground/70 text-xs">
                         Duration: {step.duration}
                       </div>
                     </motion.div>
@@ -193,11 +193,11 @@ export function DeploymentTimeline({ functionType, companyName = 'Your Company',
         </div>
 
         {/* CTA */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/10">
-          <p className="text-white/50 text-xs">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <p className="text-muted-foreground text-xs">
             Ready to start your deployment?
           </p>
-          <Button size="sm" className="bg-arq-lime text-arq-slate hover:bg-arq-lime/90">
+          <Button size="sm" className="bg-arq-deep-blue text-white hover:bg-arq-deep-blue/90">
             Schedule Kickoff
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

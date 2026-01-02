@@ -159,16 +159,16 @@ export function CodeSnippet({ functionType, language, data }: CodeSnippetProps) 
   }
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-orange-500/20">
-              <Code className="w-5 h-5 text-orange-400" />
+              <Code className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <CardTitle className="text-white text-lg">Code Example</CardTitle>
-              <p className="text-white/60 text-sm">{currentExample.description}</p>
+              <CardTitle className="text-foreground text-lg">Code Example</CardTitle>
+              <p className="text-muted-foreground text-sm">{currentExample.description}</p>
             </div>
           </div>
           {examples.length > 1 && (
@@ -176,15 +176,15 @@ export function CodeSnippet({ functionType, language, data }: CodeSnippetProps) 
               <select
                 value={activeExample}
                 onChange={(e) => setActiveExample(parseInt(e.target.value))}
-                className="appearance-none bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 pr-8 text-white text-sm focus:outline-none focus:ring-1 focus:ring-arq-lime"
+                className="appearance-none bg-muted border border-border rounded-lg px-3 py-1.5 pr-8 text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-arq-deep-blue"
               >
                 {examples.map((ex, i) => (
-                  <option key={i} value={i} className="bg-arq-slate">
+                  <option key={i} value={i} className="bg-background">
                     {ex.title}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
           )}
         </div>
@@ -192,7 +192,7 @@ export function CodeSnippet({ functionType, language, data }: CodeSnippetProps) 
 
       <CardContent className="space-y-4">
         {/* Code Block */}
-        <div className="relative rounded-lg bg-[#0d1117] border border-white/10 overflow-hidden">
+        <div className="relative rounded-lg bg-[#0d1117] border border-border overflow-hidden">
           {/* Language Badge & Copy Button */}
           <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
             <span className="text-white/50 text-xs font-mono">{currentExample.language}</span>
@@ -237,14 +237,14 @@ export function CodeSnippet({ functionType, language, data }: CodeSnippetProps) 
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/10">
-          <p className="text-white/50 text-xs">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <p className="text-muted-foreground text-xs">
             View more examples in our documentation
           </p>
           <Button
             size="sm"
             variant="ghost"
-            className="text-arq-lime hover:bg-arq-lime/10"
+            className="text-arq-deep-blue hover:bg-arq-deep-blue/10"
           >
             <ExternalLink className="w-4 h-4 mr-2" />
             API Docs

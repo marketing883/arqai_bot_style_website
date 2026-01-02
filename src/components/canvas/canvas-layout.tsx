@@ -33,7 +33,7 @@ export function CanvasLayout({
   }, [functionId, currentFunction, setFunction])
 
   return (
-    <div className="min-h-screen bg-arq-slate">
+    <div className="min-h-screen bg-background">
       {/* Canvas Header */}
       <CanvasHeader
         functionName={functionName}
@@ -60,7 +60,7 @@ export function CanvasLayout({
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="hidden md:flex md:w-[35%] lg:w-[30%] h-full border-l border-white/10"
+          className="hidden md:flex md:w-[35%] lg:w-[30%] h-full border-l border-border"
         >
           <ChatSidebar />
         </motion.div>

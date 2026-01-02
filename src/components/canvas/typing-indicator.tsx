@@ -17,7 +17,7 @@ export function TypingIndicator() {
       </div>
 
       {/* Typing Dots */}
-      <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
+      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
         <div className="flex gap-1">
           {[0, 1, 2].map((i) => (
             <motion.div

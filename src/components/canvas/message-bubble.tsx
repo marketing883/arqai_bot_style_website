@@ -43,7 +43,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
           'max-w-[80%] rounded-2xl px-4 py-2',
           isUser
             ? 'bg-arq-deep-blue text-white rounded-tr-sm'
-            : 'bg-white/10 text-white rounded-tl-sm'
+            : 'bg-muted text-foreground rounded-tl-sm'
         )}
       >
         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -52,7 +52,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
         <p
           className={cn(
             'text-[10px] mt-1',
-            isUser ? 'text-white/50' : 'text-white/30'
+            isUser ? 'text-white/50' : 'text-muted-foreground'
           )}
         >
           {formatTime(message.timestamp)}

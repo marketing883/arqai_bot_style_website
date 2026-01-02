@@ -17,7 +17,7 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
   const messagesCount = useConversationStore((state) => state.messages.length)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-arq-slate/95 backdrop-blur-md border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="h-full px-4 flex items-center justify-between">
         {/* Left: Back + Logo */}
         <div className="flex items-center gap-4">
@@ -25,7 +25,7 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             variant="ghost"
             size="sm"
             asChild
-            className="text-white/70 hover:text-white hover:bg-white/10"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <Link href="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -33,7 +33,7 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             </Link>
           </Button>
 
-          <div className="hidden sm:block h-6 w-px bg-white/20" />
+          <div className="hidden sm:block h-6 w-px bg-border" />
 
           <Link href="/" className="flex items-center gap-2">
             <svg
@@ -45,11 +45,11 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             >
               <path
                 d="M10 90L40 10H60L90 90H70L62 70H38L30 90H10ZM42 55H58L50 30L42 55Z"
-                fill="white"
+                fill="#0A2463"
               />
               <circle cx="70" cy="30" r="12" fill="#A7FF83" />
             </svg>
-            <span className="hidden md:block text-white font-semibold">ArqAI</span>
+            <span className="hidden md:block text-foreground font-semibold">ArqAI</span>
           </Link>
         </div>
 
@@ -58,7 +58,7 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-white font-medium text-sm md:text-base truncate px-4"
+            className="text-foreground font-medium text-sm md:text-base truncate px-4"
           >
             {functionName}
           </motion.h1>
@@ -71,7 +71,7 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             variant="ghost"
             size="sm"
             onClick={resetConversation}
-            className="text-white/70 hover:text-white hover:bg-white/10"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted"
             title="Reset conversation"
           >
             <RotateCcw className="w-4 h-4" />
@@ -82,11 +82,11 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             variant="ghost"
             size="sm"
             onClick={onOpenChat}
-            className="md:hidden text-white/70 hover:text-white hover:bg-white/10 relative"
+            className="md:hidden text-muted-foreground hover:text-foreground hover:bg-muted relative"
           >
             <MessageSquare className="w-4 h-4" />
             {messagesCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-arq-lime text-arq-slate text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-arq-lime text-arq-deep-blue text-xs rounded-full flex items-center justify-center font-medium">
                 {messagesCount > 9 ? '9+' : messagesCount}
               </span>
             )}

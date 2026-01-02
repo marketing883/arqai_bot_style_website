@@ -51,27 +51,27 @@ export function ArchitectureDiagram({ functionType, data }: ArchitectureDiagramP
   const [selectedLayer, setSelectedLayer] = useState<string | null>(null)
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-purple-500/20">
-            <Box className="w-5 h-5 text-purple-400" />
+            <Box className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <CardTitle className="text-white text-lg">Platform Architecture</CardTitle>
-            <p className="text-white/60 text-sm">How ArqAI works under the hood</p>
+            <CardTitle className="text-foreground text-lg">Platform Architecture</CardTitle>
+            <p className="text-muted-foreground text-sm">How ArqAI works under the hood</p>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Architecture Visualization */}
-        <div className="relative bg-white/5 rounded-xl p-6 overflow-hidden">
+        <div className="relative bg-muted/50 rounded-xl p-6 overflow-hidden border border-border">
           {/* Background Grid */}
           <div
-            className="absolute inset-0 opacity-10"
+            className="absolute inset-0 opacity-5"
             style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+              backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
               backgroundSize: '20px 20px',
             }}
           />
@@ -95,18 +95,18 @@ export function ArchitectureDiagram({ functionType, data }: ArchitectureDiagramP
                     whileHover={{ scale: 1.01 }}
                     className={`
                       flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-all
-                      ${isSelected ? 'bg-white/10 ring-1 ring-white/20' : 'bg-white/5 hover:bg-white/10'}
+                      ${isSelected ? 'bg-muted ring-1 ring-border' : 'bg-background hover:bg-muted'}
                     `}
                   >
                     <div className={`p-2 rounded-lg bg-gradient-to-br ${layer.color}`}>
                       <Icon className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-white text-sm font-medium">{layer.name}</h4>
-                      <p className="text-white/50 text-xs">{layer.description}</p>
+                      <h4 className="text-foreground text-sm font-medium">{layer.name}</h4>
+                      <p className="text-muted-foreground text-xs">{layer.description}</p>
                     </div>
                     <ArrowRight
-                      className={`w-4 h-4 text-white/30 transition-transform ${
+                      className={`w-4 h-4 text-muted-foreground transition-transform ${
                         isSelected ? 'rotate-90' : ''
                       }`}
                     />
@@ -123,7 +123,7 @@ export function ArchitectureDiagram({ functionType, data }: ArchitectureDiagramP
                       {layer.items.map((item) => (
                         <span
                           key={item}
-                          className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs"
+                          className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs border border-border"
                         >
                           {item}
                         </span>
@@ -133,7 +133,7 @@ export function ArchitectureDiagram({ functionType, data }: ArchitectureDiagramP
 
                   {/* Connector Lines */}
                   {index < architectureLayers.length - 1 && (
-                    <div className="absolute left-6 top-full w-0.5 h-3 bg-white/20" />
+                    <div className="absolute left-6 top-full w-0.5 h-3 bg-border" />
                   )}
                 </motion.div>
               )
@@ -145,32 +145,32 @@ export function ArchitectureDiagram({ functionType, data }: ArchitectureDiagramP
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-arq-lime/20"
+            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-arq-deep-blue/10"
           >
-            <Lock className="w-3 h-3 text-arq-lime" />
-            <span className="text-arq-lime text-xs font-medium">3 Patents</span>
+            <Lock className="w-3 h-3 text-arq-deep-blue" />
+            <span className="text-arq-deep-blue text-xs font-medium">3 Patents</span>
           </motion.div>
         </div>
 
         {/* Key Features */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/5 rounded-lg p-3 text-center">
-            <Zap className="w-4 h-4 text-yellow-400 mx-auto mb-1" />
-            <span className="text-white/70 text-xs">Sub-second Latency</span>
+          <div className="bg-muted/50 rounded-lg p-3 text-center border border-border">
+            <Zap className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
+            <span className="text-muted-foreground text-xs">Sub-second Latency</span>
           </div>
-          <div className="bg-white/5 rounded-lg p-3 text-center">
-            <Lock className="w-4 h-4 text-green-400 mx-auto mb-1" />
-            <span className="text-white/70 text-xs">Zero-Trust Security</span>
+          <div className="bg-muted/50 rounded-lg p-3 text-center border border-border">
+            <Lock className="w-4 h-4 text-green-500 mx-auto mb-1" />
+            <span className="text-muted-foreground text-xs">Zero-Trust Security</span>
           </div>
-          <div className="bg-white/5 rounded-lg p-3 text-center">
-            <Cloud className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-            <span className="text-white/70 text-xs">Multi-Region Deploy</span>
+          <div className="bg-muted/50 rounded-lg p-3 text-center border border-border">
+            <Cloud className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+            <span className="text-muted-foreground text-xs">Multi-Region Deploy</span>
           </div>
         </div>
 
         {/* CTA */}
-        <div className="pt-2 border-t border-white/10">
-          <Button size="sm" className="w-full bg-arq-lime text-arq-slate hover:bg-arq-lime/90">
+        <div className="pt-2 border-t border-border">
+          <Button size="sm" className="w-full bg-arq-deep-blue text-white hover:bg-arq-deep-blue/90">
             View Technical Documentation
           </Button>
         </div>

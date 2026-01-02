@@ -72,13 +72,13 @@ export function DemoVideo({ functionType, videoId, title }: DemoVideoProps) {
   const config = videoConfigs[functionType]
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
-        <CardTitle className="text-white text-lg flex items-center gap-2">
-          <Play className="w-5 h-5 text-arq-lime" />
+        <CardTitle className="text-foreground text-lg flex items-center gap-2">
+          <Play className="w-5 h-5 text-arq-deep-blue" />
           {title || config.title}
         </CardTitle>
-        <p className="text-white/60 text-sm">{config.description}</p>
+        <p className="text-muted-foreground text-sm">{config.description}</p>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -158,7 +158,7 @@ export function DemoVideo({ functionType, videoId, title }: DemoVideoProps) {
               variant="ghost"
               size="sm"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </Button>
@@ -166,7 +166,7 @@ export function DemoVideo({ functionType, videoId, title }: DemoVideoProps) {
               variant="ghost"
               size="sm"
               onClick={() => setIsMuted(!isMuted)}
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </Button>
@@ -175,14 +175,14 @@ export function DemoVideo({ functionType, videoId, title }: DemoVideoProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               <Maximize2 className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               <ExternalLink className="w-4 h-4" />
             </Button>
@@ -190,13 +190,13 @@ export function DemoVideo({ functionType, videoId, title }: DemoVideoProps) {
         </div>
 
         {/* Highlights */}
-        <div className="pt-2 border-t border-white/10">
-          <p className="text-white/50 text-xs mb-2">In this demo:</p>
+        <div className="pt-2 border-t border-border">
+          <p className="text-muted-foreground text-xs mb-2">In this demo:</p>
           <div className="flex flex-wrap gap-2">
             {config.highlights.map((highlight, index) => (
               <span
                 key={index}
-                className="px-2 py-1 rounded-full bg-white/10 text-white/70 text-xs"
+                className="px-2 py-1 rounded-full bg-muted text-muted-foreground text-xs border border-border"
               >
                 {highlight}
               </span>

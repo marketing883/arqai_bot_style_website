@@ -92,17 +92,17 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white/5 rounded-xl p-6 border border-white/10"
+            className="bg-muted/50 rounded-xl p-6 border border-border"
           >
-            <h2 className="text-white font-semibold mb-3">Get Started</h2>
-            <p className="text-white/60 text-sm mb-4">
+            <h2 className="text-foreground font-semibold mb-3">Get Started</h2>
+            <p className="text-muted-foreground text-sm mb-4">
               Ask ArqBot about this use case to explore how ArqAI can help. Try questions like:
             </p>
             <div className="flex flex-wrap gap-2">
               {getSuggestedQuestions(currentFunction).map((question, index) => (
                 <button
                   key={index}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-sm hover:bg-white/20 hover:text-white transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm hover:bg-arq-deep-blue/10 hover:text-foreground transition-colors border border-border"
                 >
                   {question}
                 </button>
@@ -114,7 +114,7 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
         {/* Content Blocks */}
         {displayedBlocks.length > 0 && (
           <div className="space-y-6">
-            <h2 className="text-white font-semibold">Generated Content</h2>
+            <h2 className="text-foreground font-semibold">Generated Content</h2>
             {displayedBlocks.map((block, index) => (
               <motion.div
                 key={block.id}
@@ -135,10 +135,10 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >
-            <p className="text-white/40 text-sm">
+            <p className="text-muted-foreground text-sm">
               Content blocks will appear here as you chat with ArqBot.
             </p>
-            <p className="text-white/30 text-xs mt-2">
+            <p className="text-muted-foreground/70 text-xs mt-2">
               Try asking about ROI, security, architecture, or deployment timelines.
             </p>
           </motion.div>

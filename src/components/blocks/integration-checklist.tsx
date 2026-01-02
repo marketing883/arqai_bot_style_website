@@ -126,21 +126,21 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
   const comingSoon = relevantIntegrations.filter(([_, int]) => int.status === 'coming-soon')
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/20">
-              <Plug className="w-5 h-5 text-blue-400" />
+              <Plug className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-white text-lg">Integrations</CardTitle>
-              <p className="text-white/60 text-sm">
+              <CardTitle className="text-foreground text-lg">Integrations</CardTitle>
+              <p className="text-muted-foreground text-sm">
                 {available.length} integrations ready for your stack
               </p>
             </div>
           </div>
-          <Badge className="bg-arq-lime/20 text-arq-lime border-arq-lime/30">
+          <Badge className="bg-arq-deep-blue/10 text-arq-deep-blue border-arq-deep-blue/30">
             {relevantIntegrations.length} total
           </Badge>
         </div>
@@ -149,19 +149,19 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
       <CardContent className="space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search integrations..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-9 bg-muted border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         {/* Available Integrations */}
         <div className="space-y-2">
-          <h4 className="text-white/70 text-xs font-medium uppercase tracking-wide">
+          <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Available ({available.length})
           </h4>
           <div className="grid grid-cols-2 gap-2">
@@ -171,16 +171,16 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group"
+                className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer group border border-border"
               >
-                <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center text-white/50 text-xs font-medium">
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs font-medium">
                   {int.name.substring(0, 2)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm truncate">{int.name}</p>
-                  <p className="text-white/40 text-xs">{int.category}</p>
+                  <p className="text-foreground text-sm truncate">{int.name}</p>
+                  <p className="text-muted-foreground text-xs">{int.category}</p>
                 </div>
-                <Check className="w-4 h-4 text-green-400" />
+                <Check className="w-4 h-4 text-green-600" />
               </motion.div>
             ))}
           </div>
@@ -189,17 +189,17 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
         {/* Beta Integrations */}
         {beta.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-white/70 text-xs font-medium uppercase tracking-wide">
+            <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               Beta ({beta.length})
             </h4>
             <div className="flex flex-wrap gap-2">
               {beta.map(([key, int]) => (
                 <div
                   key={key}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30"
                 >
-                  <span className="text-white text-sm">{int.name}</span>
-                  <Badge className="bg-yellow-500/20 text-yellow-400 border-0 text-xs">
+                  <span className="text-foreground text-sm">{int.name}</span>
+                  <Badge className="bg-yellow-500/20 text-yellow-600 border-0 text-xs">
                     Beta
                   </Badge>
                 </div>
@@ -211,14 +211,14 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
         {/* Coming Soon */}
         {comingSoon.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-white/70 text-xs font-medium uppercase tracking-wide">
+            <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               Coming Soon ({comingSoon.length})
             </h4>
             <div className="flex flex-wrap gap-2">
               {comingSoon.map(([key, int]) => (
                 <div
                   key={key}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 text-white/50"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground border border-border"
                 >
                   <Clock className="w-3 h-3" />
                   <span className="text-sm">{int.name}</span>
@@ -229,11 +229,11 @@ export function IntegrationChecklist({ functionType, techStack = [], data }: Int
         )}
 
         {/* Custom Integration CTA */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/10">
-          <p className="text-white/50 text-xs">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <p className="text-muted-foreground text-xs">
             Need a custom integration?
           </p>
-          <Button size="sm" variant="ghost" className="text-arq-lime hover:bg-arq-lime/10">
+          <Button size="sm" variant="ghost" className="text-arq-deep-blue hover:bg-arq-deep-blue/10">
             Request Integration
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>

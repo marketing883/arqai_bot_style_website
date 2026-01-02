@@ -130,23 +130,23 @@ export function ROICalculator({ functionType, defaultInputs }: ROICalculatorProp
   }
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-arq-lime/20">
-              <Calculator className="w-5 h-5 text-arq-lime" />
+              <Calculator className="w-5 h-5 text-arq-deep-blue" />
             </div>
             <div>
-              <CardTitle className="text-white text-lg">{config.title}</CardTitle>
-              <p className="text-white/60 text-sm mt-1">{config.description}</p>
+              <CardTitle className="text-foreground text-lg">{config.title}</CardTitle>
+              <p className="text-muted-foreground text-sm mt-1">{config.description}</p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setExpanded(!expanded)}
-            className="text-white/50 hover:text-white hover:bg-white/10"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
@@ -165,7 +165,7 @@ export function ROICalculator({ functionType, defaultInputs }: ROICalculatorProp
               const Icon = field.icon
               return (
                 <div key={field.key} className="space-y-2">
-                  <Label className="text-white/70 text-sm flex items-center gap-2">
+                  <Label className="text-muted-foreground text-sm flex items-center gap-2">
                     <Icon className="w-4 h-4" />
                     {field.label}
                   </Label>
@@ -179,9 +179,9 @@ export function ROICalculator({ functionType, defaultInputs }: ROICalculatorProp
                           [field.key]: parseInt(e.target.value) || 0,
                         }))
                       }
-                      className="bg-white/10 border-white/20 text-white pr-16"
+                      className="bg-muted border-border text-foreground pr-16"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
                       {field.unit}
                     </span>
                   </div>
@@ -196,42 +196,42 @@ export function ROICalculator({ functionType, defaultInputs }: ROICalculatorProp
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/5 rounded-xl p-4 text-center"
+            className="bg-muted/50 rounded-xl p-4 text-center border border-border"
           >
-            <Clock className="w-5 h-5 text-arq-lime mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{formatNumber(results.hoursSaved)}</div>
-            <div className="text-white/60 text-sm">Hours Saved/Month</div>
+            <Clock className="w-5 h-5 text-arq-deep-blue mx-auto mb-2" />
+            <div className="text-2xl font-bold text-foreground">{formatNumber(results.hoursSaved)}</div>
+            <div className="text-muted-foreground text-sm">Hours Saved/Month</div>
           </motion.div>
 
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/5 rounded-xl p-4 text-center"
+            className="bg-muted/50 rounded-xl p-4 text-center border border-border"
           >
-            <DollarSign className="w-5 h-5 text-arq-lime mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{formatCurrency(results.costSaved)}</div>
-            <div className="text-white/60 text-sm">Monthly Savings</div>
+            <DollarSign className="w-5 h-5 text-arq-deep-blue mx-auto mb-2" />
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(results.costSaved)}</div>
+            <div className="text-muted-foreground text-sm">Monthly Savings</div>
           </motion.div>
 
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-arq-lime/20 rounded-xl p-4 text-center"
+            className="bg-arq-deep-blue rounded-xl p-4 text-center"
           >
             <TrendingUp className="w-5 h-5 text-arq-lime mx-auto mb-2" />
             <div className="text-2xl font-bold text-arq-lime">{formatNumber(results.roiPercent)}%</div>
-            <div className="text-white/60 text-sm">ROI in 90 Days</div>
+            <div className="text-white/80 text-sm">ROI in 90 Days</div>
           </motion.div>
         </div>
 
         {/* CTA */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/10">
-          <p className="text-white/50 text-xs">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <p className="text-muted-foreground text-xs">
             Based on industry averages. Your results may vary.
           </p>
-          <Button size="sm" className="bg-arq-lime text-arq-slate hover:bg-arq-lime/90">
+          <Button size="sm" className="bg-arq-deep-blue text-white hover:bg-arq-deep-blue/90">
             Get Custom Analysis
           </Button>
         </div>

@@ -128,7 +128,7 @@ export function ChatInput() {
   }
 
   return (
-    <div className="border-t border-white/10 p-4">
+    <div className="border-t border-border bg-background p-4">
       {/* Navigation Buttons */}
       <div className="flex items-center gap-2 mb-3">
         <Button
@@ -136,7 +136,7 @@ export function ChatInput() {
           size="sm"
           onClick={goBack}
           disabled={!canGoBack()}
-          className="text-white/50 hover:text-white hover:bg-white/10 disabled:opacity-30"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30"
         >
           <ChevronLeft className="w-4 h-4" />
         </Button>
@@ -145,11 +145,11 @@ export function ChatInput() {
           size="sm"
           onClick={goForward}
           disabled={!canGoForward()}
-          className="text-white/50 hover:text-white hover:bg-white/10 disabled:opacity-30"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30"
         >
           <ChevronRight className="w-4 h-4" />
         </Button>
-        <span className="text-white/30 text-xs ml-2">Navigate history</span>
+        <span className="text-muted-foreground/70 text-xs ml-2">Navigate history</span>
       </div>
 
       {/* Input Form */}
@@ -163,9 +163,9 @@ export function ChatInput() {
           disabled={isLoading}
           rows={1}
           className={cn(
-            'w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12',
-            'text-white placeholder:text-white/40 text-sm',
-            'focus:outline-none focus:ring-2 focus:ring-arq-lime/50 focus:border-arq-lime/50',
+            'w-full bg-muted border border-border rounded-xl px-4 py-3 pr-12',
+            'text-foreground placeholder:text-muted-foreground text-sm',
+            'focus:outline-none focus:ring-2 focus:ring-arq-deep-blue/30 focus:border-arq-deep-blue/50',
             'resize-none min-h-[48px] max-h-[120px]',
             'disabled:opacity-50 disabled:cursor-not-allowed'
           )}
@@ -176,7 +176,7 @@ export function ChatInput() {
           disabled={!input.trim() || isLoading}
           className={cn(
             'absolute right-2 bottom-2',
-            'bg-arq-lime text-arq-slate hover:bg-arq-lime/90',
+            'bg-arq-deep-blue text-white hover:bg-arq-deep-blue/90',
             'disabled:opacity-30 disabled:cursor-not-allowed',
             'w-8 h-8 p-0'
           )}
@@ -186,7 +186,7 @@ export function ChatInput() {
       </form>
 
       {/* Character hint */}
-      <p className="text-white/30 text-xs mt-2 text-center">
+      <p className="text-muted-foreground/70 text-xs mt-2 text-center">
         Press Enter to send, Shift+Enter for new line
       </p>
     </div>

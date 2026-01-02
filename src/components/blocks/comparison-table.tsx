@@ -74,12 +74,12 @@ const comparisonData: Record<FunctionType, {
 
 function FeatureStatus({ status }: { status: 'yes' | 'no' | 'partial' }) {
   if (status === 'yes') {
-    return <Check className="w-4 h-4 text-green-400" />
+    return <Check className="w-4 h-4 text-green-600" />
   }
   if (status === 'no') {
-    return <X className="w-4 h-4 text-red-400" />
+    return <X className="w-4 h-4 text-red-500" />
   }
-  return <Minus className="w-4 h-4 text-yellow-400" />
+  return <Minus className="w-4 h-4 text-yellow-500" />
 }
 
 export function ComparisonTable({ functionType, competitors, data }: ComparisonTableProps) {
@@ -95,21 +95,21 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
   ).length
 
   return (
-    <Card className="bg-gradient-to-br from-arq-deep-blue/90 to-arq-slate border-white/10 overflow-hidden">
+    <Card className="bg-card border-border shadow-sm overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-arq-lime/20">
-              <Scale className="w-5 h-5 text-arq-lime" />
+              <Scale className="w-5 h-5 text-arq-deep-blue" />
             </div>
             <div>
-              <CardTitle className="text-white text-lg">Feature Comparison</CardTitle>
-              <p className="text-white/60 text-sm">
+              <CardTitle className="text-foreground text-lg">Feature Comparison</CardTitle>
+              <p className="text-muted-foreground text-sm">
                 ArqAI vs. alternatives
               </p>
             </div>
           </div>
-          <Badge className="bg-arq-lime/20 text-arq-lime border-arq-lime/30">
+          <Badge className="bg-arq-deep-blue/10 text-arq-deep-blue border-arq-deep-blue/30">
             {arqaiWins} unique advantages
           </Badge>
         </div>
@@ -120,15 +120,15 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left py-2 px-3 text-white/50 text-xs font-medium">
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">
                   Feature
                 </th>
-                <th className="text-center py-2 px-3 text-arq-lime text-xs font-medium">
+                <th className="text-center py-2 px-3 text-arq-deep-blue text-xs font-medium">
                   ArqAI
                 </th>
                 {displayCompetitors.map((competitor) => (
-                  <th key={competitor} className="text-center py-2 px-3 text-white/50 text-xs font-medium">
+                  <th key={competitor} className="text-center py-2 px-3 text-muted-foreground text-xs font-medium">
                     {competitor}
                   </th>
                 ))}
@@ -143,16 +143,16 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                    className="border-b border-border/50 hover:bg-muted/50 transition-colors"
                   >
                     <td className="py-2 px-3">
                       <div className="flex items-center gap-1">
-                        <span className="text-white text-sm">{feature.name}</span>
+                        <span className="text-foreground text-sm">{feature.name}</span>
                         {feature.tooltip && (
                           <div className="group relative">
-                            <Info className="w-3 h-3 text-white/30 cursor-help" />
+                            <Info className="w-3 h-3 text-muted-foreground cursor-help" />
                             <div className="absolute left-0 bottom-full mb-1 hidden group-hover:block z-10">
-                              <div className="bg-black/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                              <div className="bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap">
                                 {feature.tooltip}
                               </div>
                             </div>
@@ -162,7 +162,7 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
                     </td>
                     <td className="py-2 px-3 text-center">
                       <div className="flex justify-center">
-                        <div className="p-1 rounded bg-arq-lime/10">
+                        <div className="p-1 rounded bg-arq-deep-blue/10">
                           <FeatureStatus status={feature.arqai} />
                         </div>
                       </div>
@@ -186,7 +186,7 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
             variant="ghost"
             size="sm"
             onClick={() => setExpanded(!expanded)}
-            className="w-full text-white/50 hover:text-white hover:bg-white/10"
+            className="w-full text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             {expanded ? 'Show Less' : `Show ${comparison.features.length - 4} More Features`}
             <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -194,18 +194,18 @@ export function ComparisonTable({ functionType, competitors, data }: ComparisonT
         )}
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-6 pt-2 border-t border-white/10">
+        <div className="flex items-center justify-center gap-6 pt-2 border-t border-border">
           <div className="flex items-center gap-2">
-            <Check className="w-3 h-3 text-green-400" />
-            <span className="text-white/50 text-xs">Full support</span>
+            <Check className="w-3 h-3 text-green-600" />
+            <span className="text-muted-foreground text-xs">Full support</span>
           </div>
           <div className="flex items-center gap-2">
-            <Minus className="w-3 h-3 text-yellow-400" />
-            <span className="text-white/50 text-xs">Partial</span>
+            <Minus className="w-3 h-3 text-yellow-500" />
+            <span className="text-muted-foreground text-xs">Partial</span>
           </div>
           <div className="flex items-center gap-2">
-            <X className="w-3 h-3 text-red-400" />
-            <span className="text-white/50 text-xs">Not available</span>
+            <X className="w-3 h-3 text-red-500" />
+            <span className="text-muted-foreground text-xs">Not available</span>
           </div>
         </div>
       </CardContent>
