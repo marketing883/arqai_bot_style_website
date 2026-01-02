@@ -181,12 +181,12 @@ ${ragContext}` : ''
     // Build final system prompt with RAG context
     const finalSystemPrompt = enhancedSystemPrompt + ragInstructions
 
-    // Call Claude API
+    // Call Claude API - keep responses concise (300 tokens max)
     const client = getAnthropicClient()
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: finalSystemPrompt,
+      max_tokens: 300,
+      system: finalSystemPrompt + '\n\nIMPORTANT: Keep responses concise (under 150 words). Use bullet points and bold text for structure. After 4-5 exchanges, naturally ask for the user\'s email to send detailed materials.',
       messages: claudeMessages,
     })
 
@@ -241,239 +241,152 @@ function getMockResponse(
   const lowerMessage = userMessage.toLowerCase()
   const functionName = formatFunction(functionType)
 
+  // After 4-5 exchanges, ask for contact naturally
+  if (messageCount >= 8) {
+    return getLeadCaptureResponse(functionType)
+  }
+
   // FIRST MESSAGE - Welcome based on function
   if (messageCount <= 1) {
-    return getWelcomeResponse(functionType, userRole)
+    return getWelcomeResponse(functionType)
   }
 
-  // Handle very short or vague responses
-  if (lowerMessage.length < 15 || lowerMessage.includes('tell me') || lowerMessage.includes('go on') || lowerMessage.includes('continue') || lowerMessage.includes('more') || lowerMessage.includes('yes') || lowerMessage.includes('sure')) {
-    return getContinuationResponse(functionType, userRole)
+  // Handle vague responses
+  if (lowerMessage.length < 15 || lowerMessage.includes('tell me') || lowerMessage.includes('go on') || lowerMessage.includes('more') || lowerMessage.includes('yes') || lowerMessage.includes('sure')) {
+    return getContinuationResponse(functionType, messageCount)
   }
 
-  // Help / how can you help questions
+  // Help questions
   if (lowerMessage.includes('help') || lowerMessage.includes('can you') || lowerMessage.includes('what can')) {
-    return `Absolutely! For **${functionName}**, I can help you understand:
+    return `For **${functionName}**, I can help with:
 
-**🎯 Specific Solutions**: How ArqAI automates ${functionName.toLowerCase()} workflows with full governance
+• **Solutions** — How we automate workflows with governance
+• **ROI** — 30-40% cost reduction, 85% automation rates
+• **Security** — SOC 2, HIPAA, GDPR capabilities
+• **Implementation** — 30-day deployment
 
-**💰 ROI & Value**: Typical results our customers see (30-40% cost reduction, 85% automation rates)
-
-**🔒 Security & Compliance**: Our SOC 2, HIPAA, GDPR capabilities
-
-**🏗️ Architecture**: Our three patented technologies that make this possible
-
-**📅 Implementation**: Our 30-day deployment methodology
-
-What's most important to you right now? I can dive deep into any of these areas.`
+What matters most to you?`
   }
 
-  // Marketing-specific questions (even on wrong page)
-  if (lowerMessage.includes('marketing') || lowerMessage.includes('demand') || lowerMessage.includes('campaign') || lowerMessage.includes('lead gen')) {
-    return `Great question about marketing automation! ArqAI's **Autonomous Demand Generation** solution helps with:
+  // Marketing questions
+  if (lowerMessage.includes('marketing') || lowerMessage.includes('demand') || lowerMessage.includes('campaign')) {
+    return `**Autonomous Demand Generation** helps with:
 
-**Campaign Automation**: Multi-channel orchestration with brand guardrails
-**Lead Qualification**: AI-powered scoring that routes to the right rep
-**Content Personalization**: Dynamic content at scale while maintaining brand compliance
-**Attribution**: Full-funnel tracking with explainable AI
+• **Campaigns** — Multi-channel with brand guardrails
+• **Lead Scoring** — AI-powered routing to the right rep
+• **Personalization** — Dynamic content at scale
 
-Our customers typically see **50% faster campaign launches** and **35% improvement in conversion rates**.
+**Results**: 50% faster launches, 35% better conversion.
 
-Would you like to explore this vertical specifically? I can show you how it integrates with HubSpot, Marketo, or your existing marketing stack.`
+Want to see how it integrates with your stack?`
   }
 
-  // Use cases / customers / proof questions
-  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('solved') || lowerMessage.includes('who uses') || lowerMessage.includes('example') || lowerMessage.includes('case stud') || lowerMessage.includes('proof') || lowerMessage.includes('results')) {
-    return `Great question! ArqAI is currently deployed across **12 enterprise customers** with **$500K ARR** and zero churn. Here are some specific examples:
+  // Use cases / customers
+  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('example') || lowerMessage.includes('case stud') || lowerMessage.includes('results')) {
+    return `**12 enterprise customers**, $500K ARR, zero churn:
 
-**Finance Sector**: A Fortune 500 bank automated their incident response workflow, reducing MTTR from 4 hours to 18 minutes while maintaining full audit compliance for Fed SR 11-7.
+• **Finance** — MTTR reduced from 4 hours to 18 minutes
+• **Healthcare** — HIPAA-compliant automation
+• **Telecom** — 85% of incidents handled autonomously
 
-**Healthcare**: A major health system uses our agents to automate patient data workflows, achieving HIPAA compliance with cryptographic audit trails.
-
-**Telecom**: One of the largest carriers automated their network operations, handling 85% of routine incidents autonomously.
-
-We've also expanded into **Retail**, **Manufacturing**, and **Real Estate**. Each deployment follows our **30-day production** methodology.
-
-What industry are you in? I can share more relevant examples.`
+All deployed in **30 days**. What industry are you in?`
   }
 
-  // Contact / speak to someone questions
-  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('talk to') || lowerMessage.includes('demo') || lowerMessage.includes('call') || lowerMessage.includes('meeting')) {
-    return `I'd be happy to connect you with our team! Here's how we can help:
+  // Contact / demo questions
+  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('demo') || lowerMessage.includes('call') || lowerMessage.includes('meeting')) {
+    return `Happy to connect you with our team!
 
-**For Technical Deep-Dives**: Our Solutions Architects can walk through the architecture and integration specifics for your stack.
+• **Technical** — Solutions Architect walkthrough
+• **Business** — ROI and customer references
+• **Security** — Compliance deep-dive
 
-**For Business Discussions**: Our VP of Client Success can discuss ROI, deployment timelines, and customer references.
-
-**For Security Reviews**: We can arrange a call with our security team to discuss compliance requirements (SOC 2, HIPAA, GDPR, etc.).
-
-To get you connected, could you share:
-1. Your email address
-2. Your role/company (helps us match you with the right person)
-
-Or if you prefer, you can book directly at **demo.thearq.ai**. What works best for you?`
+What's your work email? I'll have the right person reach out.`
   }
 
-  // ROI-related questions
-  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('save') || lowerMessage.includes('price') || lowerMessage.includes('pricing') || lowerMessage.includes('budget')) {
-    return `Great question about ROI! Based on our customer data for ${formatFunction(functionType)}, organizations typically see:
+  // ROI / pricing questions
+  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('price') || lowerMessage.includes('pricing')) {
+    return `Typical ROI for **${functionName}**:
 
-**30-40% reduction** in operational costs within the first 90 days
-**50%+ improvement** in response times
-**85% automation rate** for routine tasks
+• **30-40%** cost reduction in 90 days
+• **85%** automation rate
+• **Positive ROI** in first quarter
 
-Our customers achieve **positive ROI within the first quarter**. Pricing is customized based on scope, but we focus on outcomes—you pay for value delivered, not seats or API calls.
-
-${userRole ? `As a ${userRole}, ` : ''}would you like me to walk through a personalized ROI calculation? I can factor in your team size, current tooling, and specific workflows.`
+Pricing is outcome-based, not per-seat. Want a personalized ROI estimate?`
   }
 
-  // Security-related questions
-  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc') || lowerMessage.includes('hipaa') || lowerMessage.includes('gdpr') || lowerMessage.includes('audit')) {
-    return `Security and governance are foundational to ArqAI—it's literally in our name. Here's what sets us apart:
+  // Security questions
+  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc') || lowerMessage.includes('hipaa') || lowerMessage.includes('gdpr')) {
+    return `**Security & Compliance**:
 
-**Certifications & Compliance**:
-• SOC 2 Type II (in progress, expected Q2 2026)
-• HIPAA compliant architecture
-• GDPR ready with data residency options
-• FedRAMP-ready architecture
-• Supports Colorado AI Act and EU AI Act requirements
+• SOC 2 Type II (in progress)
+• HIPAA-compliant architecture
+• GDPR ready with data residency
+• Zero-trust, end-to-end encryption
+• Cryptographic audit trails
 
-**Security Architecture**:
-• Zero-trust architecture with end-to-end encryption
-• Cryptographic audit trails (one of our 3 patents)
-• Capability tokens for least-privilege access
-• We never train on customer data
-
-**For Your Auditors**: We generate automated compliance evidence and audit reports. Would you like to see our security documentation or schedule a call with our security team?`
+Want to see our security documentation?`
   }
 
-  // Architecture / how it works questions
-  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does it work') || lowerMessage.includes('technical') || lowerMessage.includes('patent') || lowerMessage.includes('technology')) {
-    return `ArqAI's architecture is built on **three patented innovations** that differentiate us from tools like Zapier or LangChain:
+  // Architecture / technical questions
+  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does') || lowerMessage.includes('technical') || lowerMessage.includes('patent')) {
+    return `**Three Patented Technologies**:
 
-**1. Trust-Aware Agent Orchestration™**
-Risk-scores every action before execution. If risk exceeds threshold, it escalates to humans. Every action generates an auditable evidence packet.
+1. **Trust-Aware Orchestration™** — Risk-scores every action
+2. **Compliance-Aware Compiler™** — Validates before execution
+3. **Adaptive RAG™** — Self-correcting knowledge retrieval
 
-**2. Compliance-Aware Prompt Compiler™**
-Validates AI responses against your policy rules before they reach users. Prevents hallucinations and ensures brand/regulatory compliance.
-
-**3. Observability-Driven Adaptive RAG™**
-Closed-loop system that detects knowledge drift and automatically updates. Unlike static RAG, our system improves over time.
-
-For ${formatFunction(functionType)}, this means agents that are **production-ready from day one**, not endless pilots. Want me to show you the architecture diagram?`
+Production-ready from day one. Want the architecture diagram?`
   }
 
   // Integration questions
-  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow') || lowerMessage.includes('stack') || lowerMessage.includes('tool')) {
-    return `We're designed to be **integration-first**. ArqAI connects to your existing stack without rip-and-replace:
+  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow')) {
+    return `**Integration-first design**:
 
 ${getIntegrationList(functionType)}
 
-**Key Differentiators**:
-• **Cloud agnostic**: AWS, Azure, GCP, or on-prem
-• **Model agnostic**: Works with OpenAI, Anthropic, Llama, or your custom models
-• **Vertical agnostic**: Adapts to Finance, Healthcare, Retail, Manufacturing, etc.
+Cloud, model, and vertical agnostic. Most integrations take **< 1 day**.
 
-Each integration typically takes **less than a day** to configure. What's in your current stack? I can give you specific compatibility details.`
+What's in your current stack?`
   }
 
-  // Timeline / deployment questions
-  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('implement') || lowerMessage.includes('30 day')) {
-    return `Our **30-day deployment** isn't marketing—it's our standard methodology. Here's how:
+  // Timeline questions
+  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('30 day')) {
+    return `**30-Day Deployment**:
 
-**Week 1: Blueprint**
-• Discovery workshop with your team
-• Integration mapping
-• Workflow identification
+• **Week 1** — Blueprint & discovery
+• **Weeks 2-3** — Integration & configuration
+• **Week 4** — Go-live with monitoring
 
-**Week 2-3: Wire In**
-• Connect to your systems
-• Configure agents and policies
-• Set up governance rules
-
-**Week 4: Ship**
-• User acceptance testing
-• Go-live with monitoring
-• Optimization based on real usage
-
-${userRole === 'CTO' || userRole === 'CIO' ? 'Your engineering team will have full visibility throughout, but we handle the implementation burden.' : 'We assign a dedicated success manager to ensure smooth deployment.'}
-
-This is how we've achieved **zero churn** and **100% expansion** with our customers. Ready to see a detailed timeline for your organization?`
+Zero churn, 100% customer expansion. Ready to start?`
   }
 
-  // Competitor comparison questions
-  if (lowerMessage.includes('vs') || lowerMessage.includes('versus') || lowerMessage.includes('compare') || lowerMessage.includes('competitor') || lowerMessage.includes('zapier') || lowerMessage.includes('langchain') || lowerMessage.includes('make.com')) {
-    return `Great question! Here's how ArqAI compares to common alternatives:
+  // Competitor questions
+  if (lowerMessage.includes('vs') || lowerMessage.includes('compare') || lowerMessage.includes('zapier') || lowerMessage.includes('langchain')) {
+    return `**vs. Zapier/Make** — No governance or audit trails
+**vs. LangChain** — Framework, not a platform
+**vs. ServiceNow AI** — Vendor-locked
 
-**vs. Zapier/Make.com**:
-They're great for simple workflows, but lack governance, audit trails, and can't handle complex multi-step reasoning. ArqAI is built for enterprise-grade automation.
+ArqAI: **Governance-first**, three patents, stack-agnostic.
 
-**vs. LangChain/LlamaIndex**:
-These are developer frameworks—you still need to build and maintain the infrastructure. ArqAI is a complete platform with governance built-in, not bolted-on.
-
-**vs. ServiceNow AI/Salesforce Einstein**:
-Vendor-locked solutions that only work within their ecosystem. ArqAI is stack-agnostic and integrates across all your tools.
-
-**Our Unique Advantage**: We're the only platform with **governance-by-design**—three patents specifically protecting the trust, compliance, and observability layers. Would you like to see a detailed feature comparison?`
+Want a detailed comparison?`
   }
 
-  // What is ArqAI / introduction questions
-  if (lowerMessage.includes('what is') || lowerMessage.includes('tell me about') || lowerMessage.includes('arqai') || lowerMessage.includes('explain') || lowerMessage.includes('overview')) {
-    return `**ArqAI** is the AI Agent Platform that enterprises trust to run in production.
+  // What is ArqAI
+  if (lowerMessage.includes('what is') || lowerMessage.includes('arqai') || lowerMessage.includes('explain') || lowerMessage.includes('overview')) {
+    return `**ArqAI** — AI agents enterprises trust in production.
 
-Here's the problem we solve: **87% of enterprise AI pilots never make it to production**. Why? Lack of governance, compliance concerns, and the "black box" problem.
+**Problem**: 87% of AI pilots never reach production.
+**Solution**: Governance built-in, not bolted-on.
 
-**What We Do**:
-We provide governed AI agents that automate complex workflows—from IT operations to sales to customer success—with full audit trails, compliance controls, and human oversight built in.
+• Three patents
+• 30-day deployment
+• Zero customer churn
 
-**Why We're Different**:
-• **Three patents** protecting our trust, compliance, and observability technology
-• **30 days to production**, not quarters
-• **Zero customer churn** since launch
-• Built by the team behind ACI InfoTech (20+ years of Fortune 500 delivery)
-
-For ${formatFunction(functionType)} specifically, our agents can handle sophisticated automation while maintaining the governance your enterprise requires. What would you like to explore first—architecture, use cases, or ROI?`
+What would you like to explore—ROI, architecture, or use cases?`
   }
 
-  // Default response - make it specific to the function
-  const functionSpecificIntro: Record<FunctionType, string> = {
-    'it-infrastructure': `For IT Infrastructure automation, ArqAI agents can autonomously handle:
-
-• **Incident Response**: Auto-triage, escalate, and resolve common issues
-• **Deployment Automation**: CI/CD with compliance checks built-in
-• **Infrastructure Management**: Monitoring, alerting, and remediation
-• **Change Management**: Risk-scored approvals with audit trails`,
-    'revenue-operations': `For Revenue Operations, ArqAI agents streamline your entire pipeline:
-
-• **CRM Automation**: Data entry, enrichment, and hygiene
-• **Pipeline Management**: Forecasting, alerts, and opportunity scoring
-• **Sales Enablement**: Automated outreach, follow-ups, and reporting
-• **Cross-System Sync**: Keep Salesforce, HubSpot, and your tools in sync`,
-    'customer-success': `For Customer Success, ArqAI agents deliver exceptional experiences:
-
-• **Ticket Automation**: Smart routing, auto-responses, and resolution
-• **Onboarding**: Guided workflows and proactive engagement
-• **Health Scoring**: Real-time customer health monitoring
-• **Escalation**: Intelligent human handoff when needed`,
-    'demand-generation': `For Demand Generation, ArqAI agents scale your marketing:
-
-• **Lead Qualification**: AI-powered scoring and routing
-• **Campaign Automation**: Multi-channel orchestration
-• **Content Personalization**: Dynamic content at scale
-• **Attribution**: Full-funnel tracking and optimization`
-  }
-
-  return `${functionSpecificIntro[functionType]}
-
-All of this with **full governance**: audit trails, compliance controls, and human oversight.
-
-What would you like to explore? I can show you:
-• **ROI potential** for your specific situation
-• **Case studies** from similar organizations
-• **Architecture** and how it integrates with your stack
-• **Security & compliance** capabilities
-
-What matters most to you right now?`
+  // Default response
+  return getDefaultResponse(functionType, messageCount)
 }
 
 function formatFunction(functionType: FunctionType): string {
@@ -508,94 +421,138 @@ function getIntegrationList(functionType: FunctionType): string {
   return integrations[functionType]
 }
 
-function getWelcomeResponse(functionType: FunctionType, userRole: string | null): string {
-  const functionName = formatFunction(functionType)
-  const roleGreeting = userRole ? `As a ${userRole}, you'll appreciate that ` : ''
-
+function getWelcomeResponse(functionType: FunctionType): string {
   const welcomes: Record<FunctionType, string> = {
-    'it-infrastructure': `Welcome! I'm here to help you explore **Autonomous IT Infrastructure** solutions.
+    'it-infrastructure': `Hi! I'm here to help with **IT Infrastructure** automation.
 
-${roleGreeting}ArqAI can automate incident response, deployment pipelines, and infrastructure management—all with enterprise-grade governance.
+ArqAI automates incident response, deployments, and infrastructure—with enterprise governance.
 
-**What would you like to know?**
-• How we reduce MTTR by 85%
-• Our integration with ServiceNow, PagerDuty, Jira
-• The 30-day deployment methodology
-• Security and compliance (SOC 2, HIPAA)
+Ask me about **ROI**, **integrations**, **security**, or **how it works**.`,
 
-Just ask anything—I'm here to help!`,
+    'revenue-operations': `Hi! I'm here to help with **Revenue Operations** automation.
 
-    'revenue-operations': `Welcome! I'm here to help you explore **Autonomous Revenue Operations**.
+ArqAI automates CRM, pipeline, and forecasting—with full audit trails.
 
-${roleGreeting}ArqAI can automate your entire revenue pipeline—from lead scoring to forecasting to CRM hygiene—with full audit trails.
+Ask me about **ROI**, **Salesforce integration**, or **deployment**.`,
 
-**What would you like to know?**
-• How we improve sales productivity by 30%
-• Integration with Salesforce, HubSpot, Outreach
-• Our AI-powered pipeline management
-• Compliance and data governance
+    'customer-success': `Hi! I'm here to help with **Customer Success** automation.
 
-What's on your mind?`,
+ArqAI automates tickets, health scoring, and engagement—while maintaining quality.
 
-    'customer-success': `Welcome! I'm here to help you explore **Autonomous Customer Success** solutions.
+Ask me about **automation rates**, **integrations**, or **compliance**.`,
 
-${roleGreeting}ArqAI can automate ticket resolution, customer health scoring, and proactive engagement—while maintaining service quality.
+    'demand-generation': `Hi! I'm here to help with **Demand Generation** automation.
 
-**What would you like to know?**
-• How we achieve 70% tier-1 auto-resolution
-• Integration with Zendesk, Intercom, Gainsight
-• Our intelligent escalation system
-• Maintaining CSAT while automating
+ArqAI automates campaigns, lead scoring, and personalization—with brand guardrails.
 
-How can I help you today?`,
-
-    'demand-generation': `Welcome! I'm here to help you explore **Autonomous Demand Generation**.
-
-${roleGreeting}ArqAI can automate campaign execution, lead qualification, and content personalization—all within brand and compliance guardrails.
-
-**What would you like to know?**
-• How we achieve 50% faster campaign launches
-• Integration with HubSpot, Marketo, 6sense
-• AI-powered lead scoring
-• Brand safety and compliance controls
-
-What interests you most?`,
+Ask me about **results**, **HubSpot/Marketo**, or **ROI**.`,
   }
 
   return welcomes[functionType]
 }
 
-function getContinuationResponse(functionType: FunctionType, userRole: string | null): string {
+function getContinuationResponse(functionType: FunctionType, messageCount: number): string {
   const functionName = formatFunction(functionType)
 
+  // After several exchanges, prompt for contact
+  if (messageCount >= 6) {
+    return `I'd love to share more specifics for your situation.
+
+What's your work email? I can send you:
+• Detailed ROI calculator
+• Architecture whitepaper
+• Customer case studies
+
+Or we can set up a quick call with our team.`
+  }
+
   const continuations = [
-    `Happy to elaborate! For **${functionName}**, our customers typically see:
+    `For **${functionName}**, customers typically see:
 
-• **30-40% cost reduction** within 90 days
-• **85% automation rate** for routine tasks
-• **Zero compliance violations** with built-in governance
+• **30-40%** cost reduction
+• **85%** automation rate
+• **Zero** compliance violations
 
-The key is our **three patented technologies** that make AI agents production-ready. Would you like me to explain our architecture, share customer examples, or discuss ROI for your specific situation?`,
+Want to explore ROI, architecture, or case studies?`,
 
-    `Of course! Let me share what makes ArqAI unique for **${functionName}**:
+    `What makes us unique:
 
-**Speed**: 30 days to production, not quarters
-**Trust**: Three patents protecting governance, compliance, and observability
-**Results**: 12 customers, $500K ARR, zero churn
+• **30 days** to production
+• **3 patents** on governance tech
+• **Zero churn** to date
 
-What aspect interests you most—the technology, the business outcomes, or how it integrates with your existing stack?`,
+Technology, outcomes, or integrations—what's your priority?`,
 
-    `Absolutely! Here's what I can dive deeper into:
+    `I can dive into:
 
-**Technical**: Our Trust-Aware Agent Orchestration™, Compliance-Aware Prompt Compiler™, and Observability-Driven Adaptive RAG™
+• **Technical** — Our patented architecture
+• **Business** — ROI and case studies
+• **Practical** — Timeline and integrations
 
-**Business**: ROI calculations, customer case studies, competitive comparisons
-
-**Practical**: Integration options, deployment timeline, security requirements
-
-Which would be most valuable for you?`,
+What's most useful for you?`,
   ]
 
-  // Return a random continuation for variety
   return continuations[Math.floor(Math.random() * continuations.length)]
+}
+
+function getLeadCaptureResponse(functionType: FunctionType): string {
+  const functionName = formatFunction(functionType)
+
+  return `This has been a great conversation about **${functionName}**!
+
+To send you personalized materials and set up a deeper dive:
+
+**What's your work email?**
+
+I'll have our team reach out with:
+• Custom ROI analysis
+• Relevant case studies
+• Architecture overview`
+}
+
+function getDefaultResponse(functionType: FunctionType, messageCount: number): string {
+  const functionName = formatFunction(functionType)
+
+  // After several exchanges, nudge toward contact
+  if (messageCount >= 6) {
+    return `Happy to explore any aspect of **${functionName}** further.
+
+For detailed materials, what's your work email? Or ask me about ROI, security, or integrations.`
+  }
+
+  const defaults: Record<FunctionType, string> = {
+    'it-infrastructure': `For **IT Infrastructure**, we handle:
+
+• Incident response (85% MTTR reduction)
+• CI/CD with compliance
+• Infrastructure monitoring
+
+What's your biggest challenge?`,
+
+    'revenue-operations': `For **Revenue Ops**, we automate:
+
+• CRM data quality
+• Pipeline forecasting
+• Cross-system sync
+
+What's your current pain point?`,
+
+    'customer-success': `For **Customer Success**, we deliver:
+
+• 70% tier-1 auto-resolution
+• Health scoring
+• Smart escalation
+
+What matters most to you?`,
+
+    'demand-generation': `For **Demand Gen**, we enable:
+
+• 50% faster campaigns
+• AI lead scoring
+• Brand-safe personalization
+
+What's your focus area?`,
+  }
+
+  return defaults[functionType]
 }
