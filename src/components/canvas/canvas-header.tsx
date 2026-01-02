@@ -77,12 +77,12 @@ export function CanvasHeader({ functionName, onOpenChat }: CanvasHeaderProps) {
             <RotateCcw className="w-4 h-4" />
           </Button>
 
-          {/* Mobile Chat Toggle */}
+          {/* Mobile Chat Toggle - only shows on small screens */}
           <Button
             variant="ghost"
             size="sm"
             onClick={onOpenChat}
-            className="lg:hidden text-white/70 hover:text-white hover:bg-white/10 relative"
+            className="md:hidden text-white/70 hover:text-white hover:bg-white/10 relative"
           >
             <MessageSquare className="w-4 h-4" />
             {messagesCount > 0 && (
