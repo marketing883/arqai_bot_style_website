@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Sparkles } from 'lucide-react'
 import { ChatSidebar } from '@/components/canvas/chat-sidebar'
@@ -20,7 +20,7 @@ const pageWelcomeMessages: Record<string, { functionType: FunctionType; welcomeM
     functionType: 'it-infrastructure',
     welcomeMessage: `Welcome to the **ArqAI Platform** page!
 
-I'm here to guide you through our technology. As we chat, I'll **highlight relevant sections** on this page to help you find exactly what you need.
+I'm here to guide you through our technology. As we chat, I'll point you to the most relevant sections.
 
 What brings you here today? Are you looking to:
 • Automate workflows with AI agents?
@@ -31,7 +31,7 @@ What brings you here today? Are you looking to:
     functionType: 'it-infrastructure',
     welcomeMessage: `Welcome to our **Security & Compliance** center!
 
-As we discuss your requirements, I'll **highlight relevant sections** on this page to show you exactly how ArqAI addresses your needs.
+As we discuss your requirements, I'll guide you to the sections that address your needs.
 
 What compliance or security requirements are most important to your organization?`
   },
@@ -67,31 +67,6 @@ What's the best way I can assist you?`
   }
 }
 
-// Keywords to detect from user messages for each page context
-function extractKeywordsFromMessage(message: string): string[] {
-  const words = message.toLowerCase().split(/\s+/)
-  const phrases: string[] = []
-
-  // Extract individual words
-  phrases.push(...words.filter(w => w.length > 3))
-
-  // Extract common phrases
-  const text = message.toLowerCase()
-  const phrasePatterns = [
-    'customer service', 'zero trust', 'data residency', 'audit trail',
-    'soc 2', 'eu ai', 'control plane', 'ai agent', 'workflow automation',
-    'compliance', 'governance', 'integration', 'architecture', 'security'
-  ]
-
-  for (const phrase of phrasePatterns) {
-    if (text.includes(phrase)) {
-      phrases.push(phrase)
-    }
-  }
-
-  return phrases
-}
-
 export function PageWithChat({ children, pageContext, initialMessage }: PageWithChatProps) {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [hasShownWelcome, setHasShownWelcome] = useState(false)
@@ -100,7 +75,7 @@ export function PageWithChat({ children, pageContext, initialMessage }: PageWith
   const messages = useConversationStore((state) => state.messages)
 
   const setCurrentPage = usePageHighlightStore((s) => s.setCurrentPage)
-  const updateFromIntent = usePageHighlightStore((s) => s.updateFromIntent)
+  const updateFromMessage = usePageHighlightStore((s) => s.updateFromMessage)
   const highlightedSection = usePageHighlightStore((s) => s.highlightedSection)
 
   const contextConfig = pageWelcomeMessages[pageContext]
@@ -110,23 +85,21 @@ export function PageWithChat({ children, pageContext, initialMessage }: PageWith
     setCurrentPage(pageContext)
   }, [pageContext, setCurrentPage])
 
-  // Watch for new user messages and update highlights
+  // Watch for new user messages and use intent detection
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1]
       if (lastMessage.role === 'user') {
-        const keywords = extractKeywordsFromMessage(lastMessage.content)
-        updateFromIntent(keywords, pageContext)
+        updateFromMessage(lastMessage.content, pageContext)
       }
     }
-  }, [messages, pageContext, updateFromIntent])
+  }, [messages, pageContext, updateFromMessage])
 
   // Set function type and show welcome message on mount
   useEffect(() => {
     if (contextConfig && !hasShownWelcome) {
       setFunction(contextConfig.functionType)
 
-      // Add context-aware welcome message after a short delay
       const timer = setTimeout(() => {
         if (messages.length === 0) {
           addMessage('assistant', initialMessage || contextConfig.welcomeMessage)
@@ -163,54 +136,37 @@ export function PageWithChat({ children, pageContext, initialMessage }: PageWith
         `}
       >
         <MessageCircle className="w-7 h-7" />
-        {/* Notification dot - animated when section is highlighted */}
-        <motion.span
-          animate={highlightedSection ? {
-            scale: [1, 1.3, 1],
-            backgroundColor: ['#a7ff83', '#34d399', '#a7ff83']
-          } : {}}
-          transition={{ duration: 1, repeat: highlightedSection ? Infinity : 0 }}
-          className="absolute top-0 right-0 w-4 h-4 bg-arq-lime rounded-full border-2 border-white"
-        />
+        <span className="absolute top-0 right-0 w-4 h-4 bg-arq-lime rounded-full border-2 border-white" />
       </motion.button>
 
       {/* Chat Drawer */}
       <AnimatePresence>
         {isChatOpen && (
           <>
-            {/* Backdrop - semi-transparent to still see highlighted sections */}
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-40"
+              className="fixed inset-0 bg-black/20 z-40"
               onClick={() => setIsChatOpen(false)}
             />
 
             {/* Chat Panel */}
             <motion.div
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-md z-50 bg-white/95 backdrop-blur-md shadow-2xl flex flex-col border-l border-arq-lime/20"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-md z-50 bg-white shadow-2xl flex flex-col"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-arq-deep-blue to-blue-600 text-white">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Sparkles className="w-5 h-5 text-arq-lime" />
-                    <motion.div
-                      animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0"
-                    >
-                      <Sparkles className="w-5 h-5 text-arq-lime" />
-                    </motion.div>
-                  </div>
+                  <Sparkles className="w-5 h-5 text-arq-lime" />
                   <div>
-                    <h3 className="font-semibold">Interactive Guide</h3>
-                    <p className="text-sm text-white/70">I'll highlight relevant sections as we chat</p>
+                    <h3 className="font-semibold">ArqBot</h3>
+                    <p className="text-sm text-white/70">Ask me anything</p>
                   </div>
                 </div>
                 <button
@@ -220,29 +176,6 @@ export function PageWithChat({ children, pageContext, initialMessage }: PageWith
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
-              {/* Highlight indicator */}
-              <AnimatePresence>
-                {highlightedSection && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="bg-gradient-to-r from-arq-lime/20 to-emerald-400/20 border-b border-arq-lime/30 overflow-hidden"
-                  >
-                    <div className="px-4 py-2 flex items-center gap-2">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                        className="w-2 h-2 bg-arq-lime rounded-full"
-                      />
-                      <span className="text-sm text-arq-deep-blue font-medium">
-                        Section highlighted on page
-                      </span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               {/* Chat Content */}
               <div className="flex-1 overflow-hidden">

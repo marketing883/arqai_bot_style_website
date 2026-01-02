@@ -1,6 +1,8 @@
 'use client'
 
 import { create } from 'zustand'
+import { detectIntents, type IntentResult } from '@/lib/intent-detection'
+import type { ConversationTopic } from '@/stores/conversation-store'
 
 export type PageSectionId =
   // Platform page sections
@@ -27,94 +29,51 @@ export type PageSectionId =
 
 interface PageHighlightState {
   highlightedSection: PageSectionId | null
-  sectionScores: Record<PageSectionId, number>
   currentPage: string | null
   scrollToSection: PageSectionId | null
+  lastIntent: IntentResult | null
 
   setCurrentPage: (page: string) => void
   highlightSection: (sectionId: PageSectionId | null) => void
   scrollAndHighlight: (sectionId: PageSectionId) => void
-  updateFromIntent: (keywords: string[], page: string) => void
+  updateFromMessage: (message: string, page: string) => void
   clearScrollTarget: () => void
+  clearHighlight: () => void
 }
 
-// Map keywords to page sections
-const keywordToSectionMap: Record<string, Record<string, PageSectionId[]>> = {
+// Map conversation intents to page sections
+const intentToSectionMap: Record<string, Record<ConversationTopic, PageSectionId[]>> = {
   platform: {
-    // Orchestration related
-    'orchestration': ['platform-orchestration', 'platform-capabilities'],
-    'agent': ['platform-orchestration', 'platform-capabilities'],
-    'trust': ['platform-orchestration'],
-    'risk': ['platform-orchestration'],
-    // Compiler related
-    'compliance': ['platform-compiler', 'platform-capabilities'],
-    'compiler': ['platform-compiler'],
-    'policy': ['platform-compiler'],
-    'governance': ['platform-compiler', 'platform-capabilities'],
-    // RAG related
-    'rag': ['platform-rag'],
-    'retrieval': ['platform-rag'],
-    'knowledge': ['platform-rag'],
-    'observability': ['platform-rag'],
-    // Architecture
-    'architecture': ['platform-architecture'],
-    'fabric': ['platform-architecture'],
-    'control plane': ['platform-architecture'],
-    // Integrations
-    'integration': ['platform-integrations'],
-    'cloud': ['platform-integrations'],
-    'aws': ['platform-integrations'],
-    'azure': ['platform-integrations'],
-    'salesforce': ['platform-integrations'],
-    'servicenow': ['platform-integrations'],
-    // Problem/Competition
-    'pilot': ['platform-problem'],
-    'production': ['platform-problem', 'platform-comparison'],
-    'deploy': ['platform-problem'],
-    'zapier': ['platform-comparison'],
-    'langchain': ['platform-comparison'],
-    // Customer service / automation
-    'customer service': ['platform-orchestration', 'platform-capabilities'],
-    'automation': ['platform-orchestration', 'platform-capabilities'],
-    'automate': ['platform-orchestration', 'platform-capabilities'],
-    'workflow': ['platform-orchestration', 'platform-integrations'],
+    'roi': ['platform-capabilities', 'platform-comparison'],
+    'security': ['platform-architecture', 'platform-capabilities'],
+    'integration': ['platform-integrations', 'platform-capabilities'],
+    'architecture': ['platform-architecture', 'platform-capabilities'],
+    'timeline': ['platform-problem', 'platform-comparison'],
+    'case-study': ['platform-capabilities', 'platform-comparison'],
+    'demo': ['platform-hero', 'platform-capabilities'],
+    'pricing': ['platform-comparison', 'platform-capabilities'],
+    'comparison': ['platform-comparison'],
+    'general': ['platform-hero']
   },
   security: {
-    // Certifications
-    'soc': ['security-certifications'],
-    'soc 2': ['security-certifications'],
-    'iso': ['security-certifications'],
-    'fedramp': ['security-certifications'],
-    'nist': ['security-certifications'],
-    // Compliance
-    'hipaa': ['security-compliance'],
-    'gdpr': ['security-compliance'],
-    'eu ai': ['security-compliance'],
-    'colorado': ['security-compliance'],
-    'regulation': ['security-compliance'],
-    // Security features
-    'audit': ['security-audit-trails', 'security-features'],
-    'cryptographic': ['security-audit-trails'],
-    'zero trust': ['security-zero-trust', 'security-features'],
-    'zero-trust': ['security-zero-trust', 'security-features'],
-    'authentication': ['security-zero-trust'],
-    'data residency': ['security-data-residency', 'security-features'],
-    'sovereignty': ['security-data-residency'],
-    'capability token': ['security-features'],
-    'anomaly': ['security-features'],
-    // Resources
-    'documentation': ['security-resources'],
-    'penetration': ['security-resources'],
-    'pentest': ['security-resources'],
-    'dpa': ['security-resources'],
+    'roi': ['security-features', 'security-certifications'],
+    'security': ['security-features', 'security-certifications', 'security-compliance'],
+    'integration': ['security-compliance', 'security-features'],
+    'architecture': ['security-features'],
+    'timeline': ['security-certifications'],
+    'case-study': ['security-resources'],
+    'demo': ['security-hero'],
+    'pricing': ['security-resources'],
+    'comparison': ['security-certifications', 'security-compliance'],
+    'general': ['security-hero']
   }
 }
 
 export const usePageHighlightStore = create<PageHighlightState>((set, get) => ({
   highlightedSection: null,
-  sectionScores: {} as Record<PageSectionId, number>,
   currentPage: null,
   scrollToSection: null,
+  lastIntent: null,
 
   setCurrentPage: (page) => set({ currentPage: page, highlightedSection: null }),
 
@@ -127,48 +86,38 @@ export const usePageHighlightStore = create<PageHighlightState>((set, get) => ({
 
   clearScrollTarget: () => set({ scrollToSection: null }),
 
-  updateFromIntent: (keywords, page) => {
-    const pageKeywords = keywordToSectionMap[page]
-    if (!pageKeywords) return
+  clearHighlight: () => set({ highlightedSection: null }),
 
-    const scores: Record<string, number> = {}
+  updateFromMessage: (message, page) => {
+    // Use the intent detection system
+    const intent = detectIntents(message)
 
-    // Score each section based on keyword matches
-    for (const keyword of keywords) {
-      const lowerKeyword = keyword.toLowerCase()
-      for (const [mapKey, sections] of Object.entries(pageKeywords)) {
-        if (lowerKeyword.includes(mapKey) || mapKey.includes(lowerKeyword)) {
-          for (const section of sections) {
-            scores[section] = (scores[section] || 0) + 1
-          }
-        }
+    // Only highlight if confidence is high enough
+    if (intent.confidence < 0.4 || intent.primaryTopic === 'general') {
+      return
+    }
+
+    const pageSections = intentToSectionMap[page]
+    if (!pageSections) return
+
+    // Get the best matching section for the primary intent
+    const matchingSections = pageSections[intent.primaryTopic]
+    if (!matchingSections || matchingSections.length === 0) return
+
+    const targetSection = matchingSections[0]
+
+    set({
+      highlightedSection: targetSection,
+      scrollToSection: targetSection,
+      lastIntent: intent
+    })
+
+    // Clear highlight after 6 seconds
+    setTimeout(() => {
+      const current = get()
+      if (current.highlightedSection === targetSection) {
+        set({ highlightedSection: null })
       }
-    }
-
-    // Find the highest scoring section
-    let bestSection: PageSectionId | null = null
-    let bestScore = 0
-    for (const [section, score] of Object.entries(scores)) {
-      if (score > bestScore) {
-        bestScore = score
-        bestSection = section as PageSectionId
-      }
-    }
-
-    if (bestSection && bestScore > 0) {
-      set({
-        highlightedSection: bestSection,
-        scrollToSection: bestSection,
-        sectionScores: scores as Record<PageSectionId, number>
-      })
-
-      // Clear highlight after 8 seconds
-      setTimeout(() => {
-        const current = get()
-        if (current.highlightedSection === bestSection) {
-          set({ highlightedSection: null })
-        }
-      }, 8000)
-    }
+    }, 6000)
   }
 }))
