@@ -206,7 +206,16 @@ ${ragContext}` : ''
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 300,
-      system: finalSystemPrompt + '\n\nIMPORTANT: Keep responses concise (under 150 words). Use bullet points and bold text for structure. After 4-5 exchanges, naturally ask for the user\'s email to send detailed materials.',
+      system: finalSystemPrompt + `
+
+IMPORTANT RULES:
+1. Keep responses concise (under 100 words).
+2. Use bullet points and bold text for structure.
+3. When user wants to schedule a meeting or connect with sales, ONLY ask for their name first. Wait for their response before asking for email.
+4. Ask ONE question at a time. Never ask multiple qualifying questions in one message.
+5. After getting their name, ask for work email.
+6. After getting email, thank them and say the team will reach out.
+7. Be conversational, not interrogative.`,
       messages: claudeMessages,
     })
 
@@ -263,6 +272,39 @@ function getMockResponse(
 ): string {
   const lowerMessage = userMessage.toLowerCase()
   const functionName = formatFunction(functionType)
+
+  // Detect if this looks like a name (short response, no common keywords)
+  const looksLikeName = userMessage.length < 30 &&
+    !lowerMessage.includes('?') &&
+    !lowerMessage.includes('what') &&
+    !lowerMessage.includes('how') &&
+    !lowerMessage.includes('yes') &&
+    !lowerMessage.includes('no') &&
+    /^[a-zA-Z\s]+$/.test(userMessage.trim()) &&
+    userMessage.split(' ').length <= 3
+
+  // Detect if this looks like an email
+  const looksLikeEmail = lowerMessage.includes('@') && lowerMessage.includes('.')
+
+  // If they just gave us an email
+  if (looksLikeEmail) {
+    const name = userMessage.match(/^(\w+)/)?.[1] || ''
+    return `Thanks${name ? `, ${name}` : ''}! I've got your email.
+
+Our team will reach out within 24 hours with:
+• Personalized demo scheduling link
+• ROI calculator customized to your use case
+
+One quick question—**what's your main goal** with AI automation?`
+  }
+
+  // If they just gave us a name (after being asked)
+  if (looksLikeName && messageCount > 2) {
+    const name = userMessage.trim().split(' ')[0]
+    return `Nice to meet you, **${name}**!
+
+What's your **work email**? I'll send over some materials and have our team reach out to schedule a call.`
+  }
 
   // After 5 exchanges, ask for name/email naturally
   if (messageCount >= 6) {
@@ -351,11 +393,11 @@ Key difference: governance-first architecture with three patents.
 What alternatives are you considering?`
   }
 
-  // Contact / demo questions
-  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('call') || lowerMessage.includes('meeting') || lowerMessage.includes('email')) {
-    return `Happy to connect you with our team!
+  // Contact / meeting / schedule questions - ASK ONE QUESTION AT A TIME
+  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('call') || lowerMessage.includes('meeting') || lowerMessage.includes('schedule') || lowerMessage.includes('book') || lowerMessage.includes('connect')) {
+    return `Absolutely! I'd love to connect you with our team.
 
-What's your **name** and **work email**? I'll have the right person reach out within 24 hours.`
+First, **what's your name?**`
   }
 
   // What is ArqAI / help
