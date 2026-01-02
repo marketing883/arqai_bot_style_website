@@ -172,7 +172,7 @@ export function ROICalculator({ functionType, defaultInputs }: ROICalculatorProp
                   <div className="relative">
                     <Input
                       type="number"
-                      value={inputs[field.key]}
+                      value={inputs[field.key] ?? field.default ?? 0}
                       onChange={(e) =>
                         setInputs((prev) => ({
                           ...prev,
