@@ -3,8 +3,10 @@ import type { TextBlock } from '@anthropic-ai/sdk/resources/messages'
 import { getAnthropicClient, parseAssistantResponse, shouldCaptureLead } from '@/lib/claude'
 import { getSystemPrompt, detectUserRole, detectPainPoint } from '@/lib/agent-prompts'
 import { analyzeMessageForBlocks, generateBlockData, shouldShowBlock } from '@/lib/block-triggers'
+import { detectIntents, detectConversationIntents } from '@/lib/intent-detection'
 import type { FunctionType, Message, BlockType, ContentBlock } from '@/types'
 import type { FunctionContext } from '@/lib/rag'
+import type { ConversationTopic } from '@/stores/conversation-store'
 
 // Convert FunctionType to FunctionContext for RAG
 const functionTypeToContext: Record<FunctionType, FunctionContext> = {
@@ -160,6 +162,21 @@ ${ragContext}` : ''
       enhancedSystemPrompt += `\n\n[SYSTEM NOTE: A ${blockType.replace('-', ' ')} content block will be displayed alongside your response. Reference it naturally in your reply.]`
     }
 
+    // Detect intents from the conversation for dynamic content
+    const messageIntent = detectIntents(latestMessage.content)
+    const conversationIntent = detectConversationIntents(
+      claudeMessages.map(m => ({ role: m.role, content: m.content }))
+    )
+
+    // Combine intents - prioritize current message but include conversation context
+    const allTopics = [...messageIntent.topics, ...conversationIntent.topics]
+    const uniqueTopics = allTopics.filter((topic, index) => allTopics.indexOf(topic) === index)
+    const detectedTopics: ConversationTopic[] = uniqueTopics.slice(0, 4)
+
+    const highlightBlock = messageIntent.highlightBlock || conversationIntent.highlightBlock
+
+    console.log('[Intent] Detected topics:', detectedTopics, 'Highlight:', highlightBlock)
+
     // Check if API key is configured
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
@@ -173,6 +190,9 @@ ${ragContext}` : ''
         shouldCaptureLead: false,
         ragEnabled: false,
         usingMock: true,
+        // Dynamic content data
+        detectedTopics,
+        highlightBlock,
       })
     }
 
@@ -210,6 +230,9 @@ ${ragContext}` : ''
       shouldCaptureLead: captureLeadNow,
       ragEnabled: isRagEnabled,
       ragConfidence: ragConfidence > 0 ? ragConfidence : undefined,
+      // Dynamic content data
+      detectedTopics,
+      highlightBlock,
     })
   } catch (error) {
     console.error('Chat API error:', error)

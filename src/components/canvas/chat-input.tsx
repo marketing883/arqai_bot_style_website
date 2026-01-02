@@ -31,6 +31,7 @@ export function ChatInput() {
   const setPainPoints = useConversationStore((state) => state.setPainPoints)
   const setLastBlockShownAt = useConversationStore((state) => state.setLastBlockShownAt)
   const setShouldShowLeadCapture = useConversationStore((state) => state.setShouldShowLeadCapture)
+  const updateContentFromIntent = useConversationStore((state) => state.updateContentFromIntent)
 
   // Auto-resize textarea
   useEffect(() => {
@@ -104,6 +105,11 @@ export function ChatInput() {
       // Check if we should show lead capture
       if (data.shouldCaptureLead) {
         setShouldShowLeadCapture(true)
+      }
+
+      // Update dynamic content based on detected intents
+      if (data.detectedTopics && data.detectedTopics.length > 0) {
+        updateContentFromIntent(data.detectedTopics, data.highlightBlock)
       }
 
       // Add assistant message with any blocks

@@ -1,10 +1,11 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useConversationStore } from '@/stores/conversation-store'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Server, TrendingUp, HeadphonesIcon, Megaphone } from 'lucide-react'
+import { Server, TrendingUp, HeadphonesIcon, Megaphone, Sparkles } from 'lucide-react'
 import type { FunctionType, BlockType } from '@/types'
+import { cn } from '@/lib/utils'
 
 // Import all block components
 import {
@@ -39,55 +40,41 @@ const functionColors: Record<FunctionType, string> = {
   'demand-generation': 'from-orange-500 to-orange-600',
 }
 
-// Default blocks to show for each function type - all shown from the start
-const defaultBlocks: Record<FunctionType, BlockType[]> = {
-  'it-infrastructure': [
-    'architecture-diagram',
-    'roi-calculator',
-    'integration-checklist',
-    'deployment-timeline',
-    'security-review',
-    'case-study',
-  ],
-  'revenue-operations': [
-    'roi-calculator',
-    'integration-checklist',
-    'case-study',
-    'live-stats',
-    'deployment-timeline',
-    'comparison-table',
-  ],
-  'customer-success': [
-    'roi-calculator',
-    'case-study',
-    'integration-checklist',
-    'live-stats',
-    'deployment-timeline',
-    'demo-video',
-  ],
-  'demand-generation': [
-    'roi-calculator',
-    'case-study',
-    'integration-checklist',
-    'live-stats',
-    'comparison-table',
-    'deployment-timeline',
-  ],
+// Block display names for headers
+const blockNames: Record<BlockType, string> = {
+  'roi-calculator': 'ROI Calculator',
+  'demo-video': 'Product Demo',
+  'security-review': 'Security & Compliance',
+  'architecture-diagram': 'Architecture',
+  'integration-checklist': 'Integrations',
+  'deployment-timeline': 'Deployment Timeline',
+  'case-study': 'Case Study',
+  'live-stats': 'Live Metrics',
+  'code-snippet': 'API Examples',
+  'comparison-table': 'Comparison',
 }
 
 export function ContentArea({ functionName, functionDescription }: ContentAreaProps) {
   const currentFunction = useConversationStore((state) => state.currentFunction)
+  const activeBlocks = useConversationStore((state) => state.activeBlocks)
+  const highlightedBlock = useConversationStore((state) => state.highlightedBlock)
+  const blockOrder = useConversationStore((state) => state.blockOrder)
+  const activeTopics = useConversationStore((state) => state.activeTopics)
 
   const FunctionIcon = currentFunction ? functionIcons[currentFunction] : Server
   const colorClass = currentFunction ? functionColors[currentFunction] : 'from-blue-500 to-blue-600'
   const functionType: FunctionType = currentFunction || 'it-infrastructure'
 
-  // Get the default blocks for this function type
-  const blocksToShow = defaultBlocks[functionType]
+  // Get ordered blocks - active blocks first, then remaining in order
+  const orderedBlocks = [...blockOrder]
+
+  // Split into active (expanded) and inactive (collapsed) blocks
+  const expandedBlocks = orderedBlocks.filter(b => activeBlocks.includes(b))
+  const collapsedBlocks = orderedBlocks.filter(b => !activeBlocks.includes(b))
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 lg:p-8 space-y-8">
+      <div className="p-6 lg:p-8 space-y-6">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -123,6 +110,26 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
               {functionDescription}
             </p>
 
+            {/* Active Topics Indicator */}
+            {activeTopics.length > 0 && activeTopics[0] !== 'general' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-wrap gap-2 mt-6"
+              >
+                <span className="text-sm text-muted-foreground">Currently exploring:</span>
+                {activeTopics.map(topic => (
+                  <span
+                    key={topic}
+                    className="px-3 py-1 rounded-full bg-arq-lime/20 text-arq-deep-blue text-sm font-medium flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    {topic.replace('-', ' ')}
+                  </span>
+                ))}
+              </motion.div>
+            )}
+
             {/* Quick Stats */}
             <div className="flex flex-wrap gap-4 mt-6">
               <div className="px-4 py-2 rounded-lg bg-arq-lime/10 border border-arq-lime/20">
@@ -137,56 +144,142 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
           </div>
         </motion.div>
 
-        {/* Content Blocks - All shown from the start */}
-        <div className="space-y-6">
-          {blocksToShow.map((blockType, index) => (
-            <motion.div
-              key={blockType}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.05 }}
-            >
-              <BlockWrapper blockType={blockType} functionType={functionType} />
-            </motion.div>
-          ))}
-        </div>
+        {/* Active/Expanded Content Blocks */}
+        <LayoutGroup>
+          <AnimatePresence mode="popLayout">
+            {expandedBlocks.map((blockType) => (
+              <motion.div
+                key={blockType}
+                layoutId={blockType}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: { type: 'spring', stiffness: 300, damping: 30 }
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.95,
+                  transition: { duration: 0.2 }
+                }}
+                className={cn(
+                  'relative',
+                  highlightedBlock === blockType && 'z-10'
+                )}
+              >
+                {/* Highlight glow effect */}
+                {highlightedBlock === blockType && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute -inset-2 bg-arq-lime/20 rounded-3xl blur-xl -z-10"
+                  />
+                )}
+                <motion.div
+                  animate={highlightedBlock === blockType ? {
+                    boxShadow: '0 0 0 3px rgba(167, 255, 131, 0.5)',
+                  } : {
+                    boxShadow: 'none',
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="rounded-2xl overflow-hidden"
+                >
+                  <BlockWrapper
+                    blockType={blockType}
+                    functionType={functionType}
+                    isHighlighted={highlightedBlock === blockType}
+                  />
+                </motion.div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </LayoutGroup>
+
+        {/* Collapsed/Minimized Blocks */}
+        {collapsedBlocks.length > 0 && (
+          <div className="pt-4">
+            <p className="text-sm text-muted-foreground mb-3">More resources:</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <AnimatePresence>
+                {collapsedBlocks.slice(0, 6).map((blockType) => (
+                  <CollapsedBlock
+                    key={blockType}
+                    blockType={blockType}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
       </div>
     </ScrollArea>
   )
 }
 
+// Collapsed block preview card
+function CollapsedBlock({ blockType }: { blockType: BlockType }) {
+  return (
+    <motion.div
+      layoutId={blockType}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ scale: 1.02 }}
+      className="p-4 bg-muted/50 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors"
+    >
+      <p className="text-sm font-medium text-foreground truncate">
+        {blockNames[blockType]}
+      </p>
+      <p className="text-xs text-muted-foreground mt-1">
+        Ask about this →
+      </p>
+    </motion.div>
+  )
+}
+
 // Component to render each block type
-function BlockWrapper({ blockType, functionType }: { blockType: BlockType; functionType: FunctionType }) {
+function BlockWrapper({
+  blockType,
+  functionType,
+  isHighlighted
+}: {
+  blockType: BlockType
+  functionType: FunctionType
+  isHighlighted?: boolean
+}) {
+  const commonProps = { isHighlighted }
+
   switch (blockType) {
     case 'roi-calculator':
-      return <ROICalculator functionType={functionType} />
+      return <ROICalculator functionType={functionType} {...commonProps} />
 
     case 'demo-video':
-      return <DemoVideo functionType={functionType} />
+      return <DemoVideo functionType={functionType} {...commonProps} />
 
     case 'security-review':
-      return <SecurityReview data={{}} />
+      return <SecurityReview data={{}} {...commonProps} />
 
     case 'architecture-diagram':
-      return <ArchitectureDiagram functionType={functionType} data={{}} />
+      return <ArchitectureDiagram functionType={functionType} data={{}} {...commonProps} />
 
     case 'integration-checklist':
-      return <IntegrationChecklist functionType={functionType} data={{}} />
+      return <IntegrationChecklist functionType={functionType} data={{}} {...commonProps} />
 
     case 'deployment-timeline':
-      return <DeploymentTimeline functionType={functionType} data={{}} />
+      return <DeploymentTimeline functionType={functionType} data={{}} {...commonProps} />
 
     case 'case-study':
-      return <CaseStudy functionType={functionType} data={{}} />
+      return <CaseStudy functionType={functionType} data={{}} {...commonProps} />
 
     case 'live-stats':
-      return <LiveStats data={{}} />
+      return <LiveStats data={{}} {...commonProps} />
 
     case 'code-snippet':
-      return <CodeSnippet functionType={functionType} data={{}} />
+      return <CodeSnippet functionType={functionType} data={{}} {...commonProps} />
 
     case 'comparison-table':
-      return <ComparisonTable functionType={functionType} data={{}} />
+      return <ComparisonTable functionType={functionType} data={{}} {...commonProps} />
 
     default:
       return null
