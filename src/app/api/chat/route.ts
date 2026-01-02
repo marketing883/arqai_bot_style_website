@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type Anthropic from '@anthropic-ai/sdk'
+import type { TextBlock } from '@anthropic-ai/sdk/resources/messages'
 import { getAnthropicClient, parseAssistantResponse, shouldCaptureLead } from '@/lib/claude'
 import { getSystemPrompt, detectUserRole, detectPainPoint } from '@/lib/agent-prompts'
 import { analyzeMessageForBlocks, generateBlockData, shouldShowBlock } from '@/lib/block-triggers'
 import type { FunctionType, Message, BlockType, ContentBlock } from '@/types'
 
-export const runtime = 'edge'
+// Use Node.js runtime for Anthropic SDK compatibility
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 interface ChatRequest {
   messages: Message[]
@@ -135,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     // Extract text content from response
     const textContent = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .filter((block): block is TextBlock => block.type === 'text')
       .map((block) => block.text)
       .join('')
 
