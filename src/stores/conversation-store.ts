@@ -20,8 +20,15 @@ interface ConversationState {
   historyIndex: number
   history: { messages: Message[]; blocks: ContentBlock[] }[]
 
+  // AI context
+  detectedRole: string | null
+  painPoints: string[]
+  lastBlockShownAt: number
+  context: Record<string, unknown>
+
   // Lead capture state
   leadCaptured: boolean
+  shouldShowLeadCapture: boolean
   capturedFields: {
     name?: string
     email?: string
@@ -36,6 +43,13 @@ interface ConversationState {
   removeBlock: (blockId: string) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
+
+  // AI context actions
+  setDetectedRole: (role: string | null) => void
+  setPainPoints: (painPoints: string[]) => void
+  setLastBlockShownAt: (index: number) => void
+  updateContext: (updates: Record<string, unknown>) => void
+  setShouldShowLeadCapture: (show: boolean) => void
 
   // Navigation
   canGoBack: () => boolean
@@ -60,7 +74,12 @@ const initialState = {
   error: null,
   historyIndex: -1,
   history: [],
+  detectedRole: null,
+  painPoints: [],
+  lastBlockShownAt: 0,
+  context: {},
   leadCaptured: false,
+  shouldShowLeadCapture: false,
   capturedFields: {},
 }
 
@@ -132,6 +151,20 @@ export const useConversationStore = create<ConversationState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       setError: (error) => set({ error }),
+
+      setDetectedRole: (role) => set({ detectedRole: role }),
+
+      setPainPoints: (painPoints) => set({ painPoints }),
+
+      setLastBlockShownAt: (index) => set({ lastBlockShownAt: index }),
+
+      updateContext: (updates) => {
+        set((state) => ({
+          context: { ...state.context, ...updates },
+        }))
+      },
+
+      setShouldShowLeadCapture: (show) => set({ shouldShowLeadCapture: show }),
 
       canGoBack: () => get().historyIndex > 0,
 
