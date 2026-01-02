@@ -209,13 +209,20 @@ ${ragContext}` : ''
       system: finalSystemPrompt + `
 
 IMPORTANT RULES:
-1. Keep responses concise (under 100 words).
+1. Keep responses concise (under 80 words).
 2. Use bullet points and bold text for structure.
-3. When user wants to schedule a meeting or connect with sales, ONLY ask for their name first. Wait for their response before asking for email.
-4. Ask ONE question at a time. Never ask multiple qualifying questions in one message.
-5. After getting their name, ask for work email.
-6. After getting email, thank them and say the team will reach out.
-7. Be conversational, not interrogative.`,
+3. Ask ONE question at a time. Never ask multiple questions in one message.
+4. When user wants to schedule a meeting or connect with sales, collect info in this order (one per message):
+   - First: Ask for their NAME
+   - Second: Ask for WORK EMAIL
+   - Third: Ask for COMPANY NAME
+   - Fourth: Ask for JOB TITLE
+   - Fifth: Ask for COMPANY SIZE (number of employees)
+   - Sixth: Ask for PHONE NUMBER
+   - Seventh: Ask for LOCATION (city/country)
+   - Finally: Confirm you have everything and team will reach out in 24 hours
+5. Be conversational and friendly, not interrogative.
+6. After each answer, acknowledge briefly then ask the next question.`,
       messages: claudeMessages,
     })
 
@@ -273,37 +280,57 @@ function getMockResponse(
   const lowerMessage = userMessage.toLowerCase()
   const functionName = formatFunction(functionType)
 
-  // Detect if this looks like a name (short response, no common keywords)
-  const looksLikeName = userMessage.length < 30 &&
-    !lowerMessage.includes('?') &&
-    !lowerMessage.includes('what') &&
-    !lowerMessage.includes('how') &&
-    !lowerMessage.includes('yes') &&
-    !lowerMessage.includes('no') &&
-    /^[a-zA-Z\s]+$/.test(userMessage.trim()) &&
-    userMessage.split(' ').length <= 3
-
-  // Detect if this looks like an email
+  // Detect different types of lead info
   const looksLikeEmail = lowerMessage.includes('@') && lowerMessage.includes('.')
+  const looksLikePhone = /[\d\s\-\(\)]{7,}/.test(userMessage) && !looksLikeEmail
+  const looksLikeCompanySize = /^\d+/.test(userMessage.trim()) ||
+    lowerMessage.includes('employee') ||
+    ['small', 'medium', 'large', 'enterprise', 'startup', 'smb'].some(s => lowerMessage.includes(s))
+  const looksLikeName = userMessage.length < 40 &&
+    !lowerMessage.includes('?') &&
+    !lowerMessage.includes('@') &&
+    /^[a-zA-Z\s\-']+$/.test(userMessage.trim()) &&
+    userMessage.split(' ').length <= 4 &&
+    !looksLikeCompanySize
+  const looksLikeJobTitle = ['ceo', 'cto', 'cfo', 'coo', 'vp', 'director', 'manager', 'head of', 'lead', 'engineer', 'analyst', 'developer', 'architect', 'president', 'founder', 'owner', 'partner', 'consultant', 'specialist', 'coordinator', 'admin', 'chief', 'senior', 'junior', 'associate'].some(t => lowerMessage.includes(t))
+  const looksLikeLocation = ['usa', 'uk', 'canada', 'australia', 'india', 'germany', 'france', 'new york', 'san francisco', 'london', 'california', 'texas', 'florida', 'seattle', 'boston', 'chicago', 'los angeles', 'atlanta', 'denver', 'austin', 'remote'].some(l => lowerMessage.includes(l)) ||
+    /^[a-zA-Z\s,]+$/.test(userMessage.trim()) && userMessage.includes(',')
 
-  // If they just gave us an email
-  if (looksLikeEmail) {
-    const name = userMessage.match(/^(\w+)/)?.[1] || ''
-    return `Thanks${name ? `, ${name}` : ''}! I've got your email.
+  // Sequential lead capture flow based on what they just provided
+  // Order: Name → Email → Company → Job Title → Company Size → Phone → Location
 
-Our team will reach out within 24 hours with:
-• Personalized demo scheduling link
-• ROI calculator customized to your use case
-
-One quick question—**what's your main goal** with AI automation?`
+  if (looksLikeEmail && messageCount > 2) {
+    return `Got it! And **what company** are you with?`
   }
 
-  // If they just gave us a name (after being asked)
-  if (looksLikeName && messageCount > 2) {
+  if (looksLikeName && messageCount > 2 && !looksLikeJobTitle) {
     const name = userMessage.trim().split(' ')[0]
-    return `Nice to meet you, **${name}**!
+    return `Nice to meet you, **${name}**! What's your **work email**?`
+  }
 
-What's your **work email**? I'll send over some materials and have our team reach out to schedule a call.`
+  // After company name (short text that's not a name pattern we already handled)
+  if (messageCount > 3 && userMessage.length < 50 && !looksLikeEmail && !looksLikeName && !looksLikeCompanySize && !looksLikePhone && !looksLikeJobTitle && !looksLikeLocation) {
+    return `Great! And what's your **job title**?`
+  }
+
+  if (looksLikeJobTitle && messageCount > 3) {
+    return `Perfect. Roughly **how many employees** at your company?`
+  }
+
+  if (looksLikeCompanySize && messageCount > 4) {
+    return `Thanks! What's the best **phone number** to reach you?`
+  }
+
+  if (looksLikePhone && messageCount > 5) {
+    return `Last one—**where are you located**? (City/Country)`
+  }
+
+  if (looksLikeLocation && messageCount > 6) {
+    return `Perfect, I've got everything!
+
+Our team will reach out within **24 hours** to schedule your personalized demo.
+
+In the meantime, feel free to explore the content on the left—is there anything specific you'd like to know about ArqAI?`
   }
 
   // After 5 exchanges, ask for name/email naturally
