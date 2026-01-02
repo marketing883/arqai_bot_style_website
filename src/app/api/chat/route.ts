@@ -180,73 +180,198 @@ function getMockResponse(
 ): string {
   const lowerMessage = userMessage.toLowerCase()
 
+  // Use cases / customers / proof questions
+  if (lowerMessage.includes('use case') || lowerMessage.includes('customer') || lowerMessage.includes('solved') || lowerMessage.includes('who') || lowerMessage.includes('example') || lowerMessage.includes('case stud')) {
+    return `Great question! ArqAI is currently deployed across **12 enterprise customers** with **$500K ARR** and zero churn. Here are some specific examples for ${formatFunction(functionType)}:
+
+**Finance Sector**: A Fortune 500 bank automated their incident response workflow, reducing MTTR from 4 hours to 18 minutes while maintaining full audit compliance for Fed SR 11-7.
+
+**Healthcare**: A major health system uses our agents to automate patient data workflows, achieving HIPAA compliance with cryptographic audit trails.
+
+**Telecom**: One of the largest carriers automated their network operations, handling 85% of routine incidents autonomously.
+
+**Industrial/Manufacturing**: A global manufacturer uses ArqAI for supply chain automation with full traceability.
+
+We've expanded into Retail and Real Estate as well. Each deployment follows our **30-day production** methodology. Would you like me to show you a detailed case study for your industry?`
+  }
+
+  // Contact / speak to someone questions
+  if (lowerMessage.includes('contact') || lowerMessage.includes('speak') || lowerMessage.includes('talk to') || lowerMessage.includes('demo') || lowerMessage.includes('call') || lowerMessage.includes('meeting')) {
+    return `I'd be happy to connect you with our team! Here's how we can help:
+
+**For Technical Deep-Dives**: Our Solutions Architects can walk through the architecture and integration specifics for your stack.
+
+**For Business Discussions**: Our VP of Client Success can discuss ROI, deployment timelines, and customer references.
+
+**For Security Reviews**: We can arrange a call with our security team to discuss compliance requirements (SOC 2, HIPAA, GDPR, etc.).
+
+To get you connected, could you share:
+1. Your email address
+2. Your role/company (helps us match you with the right person)
+
+Or if you prefer, you can book directly at **demo.thearq.ai**. What works best for you?`
+  }
+
   // ROI-related questions
-  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('save')) {
+  if (lowerMessage.includes('roi') || lowerMessage.includes('cost') || lowerMessage.includes('save') || lowerMessage.includes('price') || lowerMessage.includes('pricing') || lowerMessage.includes('budget')) {
     return `Great question about ROI! Based on our customer data for ${formatFunction(functionType)}, organizations typically see:
 
 **30-40% reduction** in operational costs within the first 90 days
 **50%+ improvement** in response times
 **85% automation rate** for routine tasks
 
-${userRole ? `As a ${userRole}, you'll particularly appreciate that ` : ''}our platform pays for itself within the first quarter. Would you like me to walk through a personalized ROI calculation based on your specific metrics?`
+Our customers achieve **positive ROI within the first quarter**. Pricing is customized based on scope, but we focus on outcomes—you pay for value delivered, not seats or API calls.
+
+${userRole ? `As a ${userRole}, ` : ''}would you like me to walk through a personalized ROI calculation? I can factor in your team size, current tooling, and specific workflows.`
   }
 
   // Security-related questions
-  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc')) {
-    return `Security is foundational to everything we do at ArqAI. Here's what sets us apart:
+  if (lowerMessage.includes('security') || lowerMessage.includes('compliance') || lowerMessage.includes('soc') || lowerMessage.includes('hipaa') || lowerMessage.includes('gdpr') || lowerMessage.includes('audit')) {
+    return `Security and governance are foundational to ArqAI—it's literally in our name. Here's what sets us apart:
 
-**SOC 2 Type II** certified with annual audits
-**HIPAA compliant** for healthcare deployments
-**GDPR ready** with data residency options
-**Zero-trust architecture** with end-to-end encryption
+**Certifications & Compliance**:
+• SOC 2 Type II (in progress, expected Q2 2026)
+• HIPAA compliant architecture
+• GDPR ready with data residency options
+• FedRAMP-ready architecture
+• Supports Colorado AI Act and EU AI Act requirements
 
-We never train on customer data, and all processing happens in isolated environments. Would you like to see our security documentation or speak with our CISO?`
+**Security Architecture**:
+• Zero-trust architecture with end-to-end encryption
+• Cryptographic audit trails (one of our 3 patents)
+• Capability tokens for least-privilege access
+• We never train on customer data
+
+**For Your Auditors**: We generate automated compliance evidence and audit reports. Would you like to see our security documentation or schedule a call with our security team?`
   }
 
-  // Architecture questions
-  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does it work') || lowerMessage.includes('technical')) {
-    return `ArqAI's architecture is built on three patented innovations:
+  // Architecture / how it works questions
+  if (lowerMessage.includes('architecture') || lowerMessage.includes('how does it work') || lowerMessage.includes('technical') || lowerMessage.includes('patent') || lowerMessage.includes('technology')) {
+    return `ArqAI's architecture is built on **three patented innovations** that differentiate us from tools like Zapier or LangChain:
 
-1. **Semantic Action Graph** - Maps your business processes as executable workflows
-2. **Context-Aware Reasoning** - Maintains state across complex, multi-step operations
-3. **Adaptive Learning Layer** - Improves accuracy based on your specific domain
+**1. Trust-Aware Agent Orchestration™**
+Risk-scores every action before execution. If risk exceeds threshold, it escalates to humans. Every action generates an auditable evidence packet.
 
-For ${formatFunction(functionType)}, this means we can handle sophisticated automation that other tools simply can't. Want me to show you a detailed architecture diagram?`
+**2. Compliance-Aware Prompt Compiler™**
+Validates AI responses against your policy rules before they reach users. Prevents hallucinations and ensures brand/regulatory compliance.
+
+**3. Observability-Driven Adaptive RAG™**
+Closed-loop system that detects knowledge drift and automatically updates. Unlike static RAG, our system improves over time.
+
+For ${formatFunction(functionType)}, this means agents that are **production-ready from day one**, not endless pilots. Want me to show you the architecture diagram?`
   }
 
   // Integration questions
-  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow')) {
-    return `We have deep integrations across the enterprise stack. For ${formatFunction(functionType)}, our most popular integrations include:
+  if (lowerMessage.includes('integrate') || lowerMessage.includes('connect') || lowerMessage.includes('salesforce') || lowerMessage.includes('servicenow') || lowerMessage.includes('stack') || lowerMessage.includes('tool')) {
+    return `We're designed to be **integration-first**. ArqAI connects to your existing stack without rip-and-replace:
 
 ${getIntegrationList(functionType)}
 
-Each integration takes **less than a day** to configure, and we handle the heavy lifting. What tools are in your current stack?`
+**Key Differentiators**:
+• **Cloud agnostic**: AWS, Azure, GCP, or on-prem
+• **Model agnostic**: Works with OpenAI, Anthropic, Llama, or your custom models
+• **Vertical agnostic**: Adapts to Finance, Healthcare, Retail, Manufacturing, etc.
+
+Each integration typically takes **less than a day** to configure. What's in your current stack? I can give you specific compatibility details.`
   }
 
-  // Timeline questions
-  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('implement')) {
-    return `Our implementation timeline is aggressive by design—we get you to production in **30 days or less**. Here's how:
+  // Timeline / deployment questions
+  if (lowerMessage.includes('timeline') || lowerMessage.includes('how long') || lowerMessage.includes('deploy') || lowerMessage.includes('implement') || lowerMessage.includes('30 day')) {
+    return `Our **30-day deployment** isn't marketing—it's our standard methodology. Here's how:
 
-**Week 1**: Discovery & integration setup
-**Week 2**: Configuration & workflow mapping
-**Week 3**: Testing & refinement
-**Week 4**: Go-live & optimization
+**Week 1: Blueprint**
+• Discovery workshop with your team
+• Integration mapping
+• Workflow identification
+
+**Week 2-3: Wire In**
+• Connect to your systems
+• Configure agents and policies
+• Set up governance rules
+
+**Week 4: Ship**
+• User acceptance testing
+• Go-live with monitoring
+• Optimization based on real usage
 
 ${userRole === 'CTO' || userRole === 'CIO' ? 'Your engineering team will have full visibility throughout, but we handle the implementation burden.' : 'We assign a dedicated success manager to ensure smooth deployment.'}
 
-Ready to see a detailed timeline for your organization?`
+This is how we've achieved **zero churn** and **100% expansion** with our customers. Ready to see a detailed timeline for your organization?`
   }
 
-  // Default response
-  return `Thanks for your interest in ArqAI for ${formatFunction(functionType)}!
+  // Competitor comparison questions
+  if (lowerMessage.includes('vs') || lowerMessage.includes('versus') || lowerMessage.includes('compare') || lowerMessage.includes('competitor') || lowerMessage.includes('zapier') || lowerMessage.includes('langchain') || lowerMessage.includes('make.com')) {
+    return `Great question! Here's how ArqAI compares to common alternatives:
 
-I'm here to help you understand how we can automate and optimize your operations. ${userRole ? `As a ${userRole}, ` : ''}you might be interested in:
+**vs. Zapier/Make.com**:
+They're great for simple workflows, but lack governance, audit trails, and can't handle complex multi-step reasoning. ArqAI is built for enterprise-grade automation.
 
-• **ROI potential** - Most customers see 40%+ cost reduction
-• **Security posture** - SOC 2, HIPAA, GDPR ready
-• **Quick deployment** - 30 days to production
+**vs. LangChain/LlamaIndex**:
+These are developer frameworks—you still need to build and maintain the infrastructure. ArqAI is a complete platform with governance built-in, not bolted-on.
 
-What aspect would you like to explore first?`
+**vs. ServiceNow AI/Salesforce Einstein**:
+Vendor-locked solutions that only work within their ecosystem. ArqAI is stack-agnostic and integrates across all your tools.
+
+**Our Unique Advantage**: We're the only platform with **governance-by-design**—three patents specifically protecting the trust, compliance, and observability layers. Would you like to see a detailed feature comparison?`
+  }
+
+  // What is ArqAI / introduction questions
+  if (lowerMessage.includes('what is') || lowerMessage.includes('tell me about') || lowerMessage.includes('arqai') || lowerMessage.includes('explain') || lowerMessage.includes('overview')) {
+    return `**ArqAI** is the AI Agent Platform that enterprises trust to run in production.
+
+Here's the problem we solve: **87% of enterprise AI pilots never make it to production**. Why? Lack of governance, compliance concerns, and the "black box" problem.
+
+**What We Do**:
+We provide governed AI agents that automate complex workflows—from IT operations to sales to customer success—with full audit trails, compliance controls, and human oversight built in.
+
+**Why We're Different**:
+• **Three patents** protecting our trust, compliance, and observability technology
+• **30 days to production**, not quarters
+• **Zero customer churn** since launch
+• Built by the team behind ACI InfoTech (20+ years of Fortune 500 delivery)
+
+For ${formatFunction(functionType)} specifically, our agents can handle sophisticated automation while maintaining the governance your enterprise requires. What would you like to explore first—architecture, use cases, or ROI?`
+  }
+
+  // Default response - make it specific to the function
+  const functionSpecificIntro: Record<FunctionType, string> = {
+    'it-infrastructure': `For IT Infrastructure automation, ArqAI agents can autonomously handle:
+
+• **Incident Response**: Auto-triage, escalate, and resolve common issues
+• **Deployment Automation**: CI/CD with compliance checks built-in
+• **Infrastructure Management**: Monitoring, alerting, and remediation
+• **Change Management**: Risk-scored approvals with audit trails`,
+    'revenue-operations': `For Revenue Operations, ArqAI agents streamline your entire pipeline:
+
+• **CRM Automation**: Data entry, enrichment, and hygiene
+• **Pipeline Management**: Forecasting, alerts, and opportunity scoring
+• **Sales Enablement**: Automated outreach, follow-ups, and reporting
+• **Cross-System Sync**: Keep Salesforce, HubSpot, and your tools in sync`,
+    'customer-success': `For Customer Success, ArqAI agents deliver exceptional experiences:
+
+• **Ticket Automation**: Smart routing, auto-responses, and resolution
+• **Onboarding**: Guided workflows and proactive engagement
+• **Health Scoring**: Real-time customer health monitoring
+• **Escalation**: Intelligent human handoff when needed`,
+    'demand-generation': `For Demand Generation, ArqAI agents scale your marketing:
+
+• **Lead Qualification**: AI-powered scoring and routing
+• **Campaign Automation**: Multi-channel orchestration
+• **Content Personalization**: Dynamic content at scale
+• **Attribution**: Full-funnel tracking and optimization`
+  }
+
+  return `${functionSpecificIntro[functionType]}
+
+All of this with **full governance**: audit trails, compliance controls, and human oversight.
+
+What would you like to explore? I can show you:
+• **ROI potential** for your specific situation
+• **Case studies** from similar organizations
+• **Architecture** and how it integrates with your stack
+• **Security & compliance** capabilities
+
+What matters most to you right now?`
 }
 
 function formatFunction(functionType: FunctionType): string {

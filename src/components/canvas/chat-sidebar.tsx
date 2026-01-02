@@ -42,9 +42,9 @@ export function ChatSidebar() {
   }, [shouldShowLeadCapture, leadCaptured, isModalOpen, setShouldShowLeadCapture])
 
   return (
-    <div className="flex flex-col h-full w-full bg-muted/30">
+    <div className="flex flex-col h-full w-full bg-white">
       {/* Chat Header */}
-      <div className="px-4 py-3 border-b border-border bg-background">
+      <div className="px-4 py-3 border-b border-border bg-white">
         <h2 className="text-foreground font-medium text-sm">Chat with ArqBot</h2>
         <p className="text-muted-foreground text-xs">Ask about this use case</p>
       </div>

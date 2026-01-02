@@ -41,14 +41,14 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-arq-deep-blue to-arq-slate p-8"
+          className="relative overflow-hidden rounded-2xl bg-white border border-border shadow-sm p-8"
         >
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 opacity-5">
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+                backgroundImage: `radial-gradient(circle at 1px 1px, #0A2463 1px, transparent 0)`,
                 backgroundSize: '30px 30px',
               }}
             />
@@ -63,24 +63,24 @@ export function ContentArea({ functionName, functionDescription }: ContentAreaPr
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+            <h1 className="text-3xl lg:text-4xl font-bold text-arq-deep-blue mb-4">
               {functionName}
             </h1>
 
             {/* Description */}
-            <p className="text-lg text-white/70 max-w-2xl">
+            <p className="text-lg text-muted-foreground max-w-2xl">
               {functionDescription}
             </p>
 
             {/* Quick Stats */}
             <div className="flex flex-wrap gap-4 mt-6">
-              <div className="px-4 py-2 rounded-lg bg-white/10">
-                <span className="text-arq-lime font-semibold">30 days</span>
-                <span className="text-white/60 ml-2">to production</span>
+              <div className="px-4 py-2 rounded-lg bg-arq-lime/10 border border-arq-lime/20">
+                <span className="text-arq-deep-blue font-semibold">30 days</span>
+                <span className="text-muted-foreground ml-2">to production</span>
               </div>
-              <div className="px-4 py-2 rounded-lg bg-white/10">
-                <span className="text-arq-lime font-semibold">3 patents</span>
-                <span className="text-white/60 ml-2">protecting innovation</span>
+              <div className="px-4 py-2 rounded-lg bg-arq-lime/10 border border-arq-lime/20">
+                <span className="text-arq-deep-blue font-semibold">3 patents</span>
+                <span className="text-muted-foreground ml-2">protecting innovation</span>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { MessageSquare, X, Send, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useConversationStore } from '@/stores/conversation-store'
 import { cn } from '@/lib/utils'
+import type { ContentBlock, BlockType } from '@/types'
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,13 +17,26 @@ export function ChatWidget() {
 
   const messages = useConversationStore((state) => state.messages)
   const isLoading = useConversationStore((state) => state.isLoading)
+  const currentFunction = useConversationStore((state) => state.currentFunction)
+  const displayedBlocks = useConversationStore((state) => state.displayedBlocks)
+  const detectedRole = useConversationStore((state) => state.detectedRole)
+  const lastBlockShownAt = useConversationStore((state) => state.lastBlockShownAt)
+  const context = useConversationStore((state) => state.context)
+
   const addMessage = useConversationStore((state) => state.addMessage)
   const setFunction = useConversationStore((state) => state.setFunction)
+  const setLoading = useConversationStore((state) => state.setLoading)
+  const setError = useConversationStore((state) => state.setError)
+  const setDetectedRole = useConversationStore((state) => state.setDetectedRole)
+  const setPainPoints = useConversationStore((state) => state.setPainPoints)
+  const setLastBlockShownAt = useConversationStore((state) => state.setLastBlockShownAt)
 
   // Initialize with a generic function type
   useEffect(() => {
-    setFunction('it-infrastructure')
-  }, [setFunction])
+    if (!currentFunction) {
+      setFunction('it-infrastructure')
+    }
+  }, [setFunction, currentFunction])
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -37,12 +51,80 @@ export function ChatWidget() {
     return () => clearTimeout(timer)
   }, [])
 
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return
+
+    // Add user message
+    addMessage('user', messageText)
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Prepare messages for API
+      const apiMessages = [...messages, { role: 'user' as const, content: messageText, id: 'temp', timestamp: new Date() }]
+        .map((m) => ({ role: m.role, content: m.content }))
+
+      // Get previous block types
+      const previousBlocks: BlockType[] = displayedBlocks.map((b) => b.type)
+
+      // Call the API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: apiMessages,
+          functionType: currentFunction || 'it-infrastructure',
+          userRole: detectedRole,
+          previousBlocks,
+          messageCount: messages.length + 1,
+          lastBlockShownAt,
+          context,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get response')
+      }
+
+      const data = await response.json()
+
+      // Update detected role if provided
+      if (data.detectedRole && data.detectedRole !== detectedRole) {
+        setDetectedRole(data.detectedRole)
+      }
+
+      // Update pain points if provided
+      if (data.painPoints && data.painPoints.length > 0) {
+        setPainPoints(data.painPoints)
+      }
+
+      // Track when blocks are shown
+      if (data.blocks && data.blocks.length > 0) {
+        setLastBlockShownAt(messages.length + 1)
+      }
+
+      // Add assistant message (without blocks in homepage widget)
+      addMessage('assistant', data.message)
+    } catch (error) {
+      console.error('Chat error:', error)
+      setError('Failed to get response. Please try again.')
+      addMessage(
+        'assistant',
+        "I apologize, but I'm having trouble responding right now. Please try again in a moment."
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || isLoading) return
-
-    addMessage('user', input.trim())
+    const trimmedInput = input.trim()
+    if (!trimmedInput) return
     setInput('')
+    await sendMessage(trimmedInput)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -172,10 +254,9 @@ export function ChatWidget() {
                     {['What is ArqAI?', 'How does it work?', 'Show me ROI'].map((q) => (
                       <button
                         key={q}
-                        onClick={() => {
-                          addMessage('user', q)
-                        }}
-                        className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs hover:bg-arq-deep-blue/10 hover:text-foreground transition-colors border border-border"
+                        onClick={() => sendMessage(q)}
+                        disabled={isLoading}
+                        className="px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs hover:bg-arq-deep-blue/10 hover:text-foreground transition-colors border border-border disabled:opacity-50"
                       >
                         {q}
                       </button>
