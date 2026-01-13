@@ -1,25 +1,16 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useConversationStore } from '@/stores/conversation-store'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { TypingIndicator } from './typing-indicator'
-import { LeadCaptureModal } from './lead-capture-modal'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function ChatSidebar() {
   const messages = useConversationStore((state) => state.messages)
   const isLoading = useConversationStore((state) => state.isLoading)
-  const currentFunction = useConversationStore((state) => state.currentFunction)
-  const displayedBlocks = useConversationStore((state) => state.displayedBlocks)
-  const painPoints = useConversationStore((state) => state.painPoints)
-  const shouldShowLeadCapture = useConversationStore((state) => state.shouldShowLeadCapture)
-  const leadCaptured = useConversationStore((state) => state.leadCaptured)
-  const setShouldShowLeadCapture = useConversationStore((state) => state.setShouldShowLeadCapture)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom on new messages
@@ -29,22 +20,10 @@ export function ChatSidebar() {
     }
   }, [messages, isLoading])
 
-  // Open modal when shouldShowLeadCapture becomes true (and lead not already captured)
-  useEffect(() => {
-    if (shouldShowLeadCapture && !leadCaptured && !isModalOpen) {
-      // Small delay to not interrupt the conversation flow
-      const timer = setTimeout(() => {
-        setIsModalOpen(true)
-        setShouldShowLeadCapture(false)
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [shouldShowLeadCapture, leadCaptured, isModalOpen, setShouldShowLeadCapture])
-
   return (
-    <div className="flex flex-col h-full w-full bg-muted/30">
+    <div className="flex flex-col h-full w-full bg-white">
       {/* Chat Header */}
-      <div className="px-4 py-3 border-b border-border bg-background">
+      <div className="px-4 py-3 border-b border-border bg-white">
         <h2 className="text-foreground font-medium text-sm">Chat with ArqBot</h2>
         <p className="text-muted-foreground text-xs">Ask about this use case</p>
       </div>
@@ -99,18 +78,6 @@ export function ChatSidebar() {
 
       {/* Input Area */}
       <ChatInput />
-
-      {/* Lead Capture Modal */}
-      {currentFunction && (
-        <LeadCaptureModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          functionType={currentFunction}
-          blocksViewed={displayedBlocks.map((b) => b.type)}
-          painPoints={painPoints}
-          conversationLength={messages.length}
-        />
-      )}
     </div>
   )
 }
